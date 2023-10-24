@@ -66,35 +66,35 @@ def update_table_entry(table, symbol, data):
         # Check the type of table and update the fields accordingly
         if table == CompanyInformation:
             # Update fields specific to CompanyInformation
-            entry.name = data['Name'].iloc[0]
-            entry.description = data['Description'].iloc[0]
-            entry.asset_type = data['AssetType'].iloc[0]
-            entry.exchange = data['Exchange'].iloc[0]
-            entry.currency = data['Currency'].iloc[0]
-            entry.country = data['Country'].iloc[0]
-            entry.sector = data['Sector'].iloc[0]
-            entry.industry = data['Industry'].iloc[0]
-            entry.fiscal_year_end = data['FiscalYearEnd'].iloc[0]
-            entry.latest_quarter = data['LatestQuarter'].iloc[0]
+            entry.name = data['Name'].iloc[0] if data['Name'].iloc[0] is not None else None
+            entry.description = data['Description'].iloc[0] if data['Description'].iloc[0] is not None else None
+            entry.asset_type = data['AssetType'].iloc[0] if data['AssetType'].iloc[0] is not None else None
+            entry.exchange = data['Exchange'].iloc[0] if data['Exchange'].iloc[0] is not None else None
+            entry.currency = data['Currency'].iloc[0] if data['Currency'].iloc[0] is not None else None
+            entry.country = data['Country'].iloc[0] if data['Country'].iloc[0] is not None else None
+            entry.sector = data['Sector'].iloc[0] if data['Sector'].iloc[0] is not None else None
+            entry.industry = data['Industry'].iloc[0] if data['Industry'].iloc[0] is not None else None
+            entry.fiscal_year_end = data['FiscalYearEnd'].iloc[0] if data['FiscalYearEnd'].iloc[0] is not None else None
+            entry.latest_quarter = data['LatestQuarter'].iloc[0] if data['LatestQuarter'].iloc[0] is not None else None
         
         elif table == FinancialMetrics:
             # Update fields specific to FinancialMetrics
-            entry.market_capitalization = data['MarketCapitalization'].iloc[0]
-            entry.ebitda = data['EBITDA'].iloc[0]
-            entry.pe_ratio = data['PERatio'].iloc[0]
-            entry.peg_ratio = data['PEGRatio'].iloc[0]
-            entry.earnings_per_share = data['EPS'].iloc[0]
-            entry.revenue_per_share_ttm = data['RevenuePerShareTTM'].iloc[0]
-            entry.profit_margin = data['ProfitMargin'].iloc[0]
-            entry.operating_margin_ttm = data['OperatingMarginTTM'].iloc[0]
-            entry.return_on_assets_ttm = data['ReturnOnAssetsTTM'].iloc[0]
-            entry.return_on_equity_ttm = data['ReturnOnEquityTTM'].iloc[0]
-            entry.revenue_ttm = data['RevenueTTM'].iloc[0]
-            entry.gross_profit_ttm = data['GrossProfitTTM'].iloc[0]
-            entry.quarterly_earnings_growth_yoy = data['QuarterlyEarningsGrowthYOY'].iloc[0]
-            entry.quarterly_revenue_growth_yoy = data['QuarterlyRevenueGrowthYOY'].iloc[0]
-            entry.week_52_high = data['52WeekHigh'].iloc[0]
-            entry.week_52_low = data['52WeekLow'].iloc[0]
+            entry.market_capitalization = data['MarketCapitalization'].iloc[0] if data['MarketCapitalization'].iloc[0] is not None else None
+            entry.ebitda = data['EBITDA'].iloc[0] if data['EBITDA'].iloc[0] is not None else None
+            entry.pe_ratio = data['PERatio'].iloc[0] if data['PERatio'].iloc[0] is not None else None
+            entry.peg_ratio = data['PEGRatio'].iloc[0] if data['PEGRatio'].iloc[0] is not None else None
+            entry.earnings_per_share = data['EPS'].iloc[0] if data['EPS'].iloc[0] is not None else None
+            entry.revenue_per_share_ttm = data['RevenuePerShareTTM'].iloc[0] if data['RevenuePerShareTTM'].iloc[0] is not None else None
+            entry.profit_margin = data['ProfitMargin'].iloc[0] if data['ProfitMargin'].iloc[0] is not None else None
+            entry.operating_margin_ttm = data['OperatingMarginTTM'].iloc[0] if data['OperatingMarginTTM'].iloc[0] is not None else None
+            entry.return_on_assets_ttm = data['ReturnOnAssetsTTM'].iloc[0] if data['ReturnOnAssetsTTM'].iloc[0] is not None else None
+            entry.return_on_equity_ttm = data['ReturnOnEquityTTM'].iloc[0] if data['ReturnOnEquityTTM'].iloc[0] is not None else None
+            entry.revenue_ttm = data['RevenueTTM'].iloc[0] if data['RevenueTTM'].iloc[0] is not None else None
+            entry.gross_profit_ttm = data['GrossProfitTTM'].iloc[0] if data['GrossProfitTTM'].iloc[0] is not None else None
+            entry.quarterly_earnings_growth_yoy = data['QuarterlyEarningsGrowthYOY'].iloc[0] if data['QuarterlyEarningsGrowthYOY'].iloc is not None else None
+            entry.quarterly_revenue_growth_yoy = data['QuarterlyRevenueGrowthYOY'].iloc[0] if data['QuarterlyRevenueGrowthYOY'].iloc is not None else None
+            entry.week_52_high = data['52WeekHigh'].iloc[0] if data['52WeekHigh'].iloc[0] is not None else None
+            entry.week_52_low = data['52WeekLow'].iloc[0] if data['52WeekLow'].iloc[0] is not None else None
     
         # Set the timestamp to the current datetime
         entry.timestamp = datetime.now()
