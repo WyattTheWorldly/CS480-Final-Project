@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %} Stocks {% endblock %}
+
+{% block content %}
+<div class="button-container">
+    <a href="{{ url_for('fetch_data', symbol='AAPL') }}" class="btn btn-primary">Apple</a>
+    <a href="{{ url_for('fetch_data', symbol='GOOGL') }}" class="btn btn-primary">Google</a>
+    <a href="{{ url_for('fetch_data', symbol='MSFT') }}" class="btn btn-primary">Microsoft</a>
+</div>
+{% endblock %}
