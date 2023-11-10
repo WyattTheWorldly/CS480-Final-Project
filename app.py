@@ -1,11 +1,11 @@
-from flask import Flask, render_template
-from getData import db, fetch_and_store_stock_data, CompanyInformation, FinancialMetrics
-import getData
+from flask import Flask, render_template, jsonify
+from extensions import db, create_session
+from getData import fetch_and_store_stock_data
 
 app = Flask(__name__)
 
 # configure database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:groupD@localhost/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Cs480@localhost/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database with the Flask app
@@ -18,9 +18,12 @@ with app.app_context():
 # Routes
 @app.route('/fetch_data/<symbol>')
 def fetch_data(symbol):
-    # Call the function from getData.py with the symbol from the URL
-    getData.fetch_and_store_stock_data(symbol)
-    return f"Data for {symbol} has been updated"
+    try:
+        # Call the function from getData.py with the symbol from the URL
+        fetch_and_store_stock_data(symbol)
+        return jsonify({"status": "success", "message": f"Data for {symbol} has been updated"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/')
 def index():

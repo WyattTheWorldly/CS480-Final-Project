@@ -1,10 +1,11 @@
 from alpha_vantage.fundamentaldata import FundamentalData
+from alpha_vantage.timeseries import TimeSeries
 from datetime import datetime, timedelta
-from flask_sqlalchemy import SQLAlchemy
+from extensions import db, create_session
+import pandas as pd
+from flask import current_app
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-# Create instance of the SQLAlchemy database
-db = SQLAlchemy()
 
 # Key that allows access to API
 API_key = 'N8LVC6JOGADHP6RE'
@@ -44,8 +45,18 @@ class FinancialMetrics(db.Model):
     week_52_low = db.Column(db.Float)  
     timestamp = db.Column(db.DateTime)
     
+class TimeSeriesDailyData(db.Model):
+    symbol = db.Column(db.String(10), primary_key=True)
+    date = db.Column(db.DateTime, primary_key=True)
+    open_price = db.Column(db.Float)
+    high_price = db.Column(db.Float)
+    low_price = db.Column(db.Float)
+    close_price = db.Column(db.Float)
+    volume = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime)
+
 # Function to get stock data from the AlphaVantage API
-def get_stock_data(symbol):
+def get_stock_ov_data(symbol):
     # Create an AlphaVantage client
     ov = FundamentalData(key=API_key, output_format='pandas')
     
@@ -54,96 +65,198 @@ def get_stock_data(symbol):
     
     return data, meta_data
 
+def get_daily_time_series_data(symbol):
+    # Create an AlphaVantage client
+    ts = TimeSeries(key=API_key, output_format='pandas')
+    
+    # Retrieve company overview data from the given symbol
+    data, meta_data = ts.get_daily(symbol=symbol)
+    
+    return data, meta_data
+
 # Function to update a table entry with new data
-def update_table_entry(table, symbol, data):
+def update_table_entry_ov(table, symbol, data):
+    session = create_session()
     try:
         # Check to see if entry already exists for symbol
-        entry = table.query.filter_by(symbol = symbol).first()
+        entry = session.query(table).filter_by(symbol=symbol).first()
         # If entry for symbol does not already exist, create a new one
         if not entry:
-            entry = table(symbol = symbol)
+            entry = table(symbol=symbol)
+            session.add(entry)
 
         # Check the type of table and update the fields accordingly
-        if table == CompanyInformation:
+        if isinstance(entry, CompanyInformation):
             # Update fields specific to CompanyInformation
-            entry.name = data['Name'].iloc[0] if data['Name'].iloc[0] is not None else None
-            entry.description = data['Description'].iloc[0] if data['Description'].iloc[0] is not None else None
-            entry.asset_type = data['AssetType'].iloc[0] if data['AssetType'].iloc[0] is not None else None
-            entry.exchange = data['Exchange'].iloc[0] if data['Exchange'].iloc[0] is not None else None
-            entry.currency = data['Currency'].iloc[0] if data['Currency'].iloc[0] is not None else None
-            entry.country = data['Country'].iloc[0] if data['Country'].iloc[0] is not None else None
-            entry.sector = data['Sector'].iloc[0] if data['Sector'].iloc[0] is not None else None
-            entry.industry = data['Industry'].iloc[0] if data['Industry'].iloc[0] is not None else None
-            entry.fiscal_year_end = data['FiscalYearEnd'].iloc[0] if data['FiscalYearEnd'].iloc[0] is not None else None
-            entry.latest_quarter = data['LatestQuarter'].iloc[0] if data['LatestQuarter'].iloc[0] is not None else None
+            entry.name = data['Name'].iloc[0] if pd.notnull(data['Name'].iloc[0]) else None
+            entry.description = data['Description'].iloc[0] if pd.notnull(data['Description'].iloc[0]) else None
+            entry.asset_type = data['AssetType'].iloc[0] if pd.notnull(data['AssetType'].iloc[0]) else None
+            entry.exchange = data['Exchange'].iloc[0] if pd.notnull(data['Exchange'].iloc[0]) else None
+            entry.currency = data['Currency'].iloc[0] if pd.notnull(data['Currency'].iloc[0]) else None
+            entry.country = data['Country'].iloc[0] if pd.notnull(data['Country'].iloc[0]) else None
+            entry.sector = data['Sector'].iloc[0] if pd.notnull(data['Sector'].iloc[0]) else None
+            entry.industry = data['Industry'].iloc[0] if pd.notnull(data['Industry'].iloc[0]) else None
+            entry.fiscal_year_end = data['FiscalYearEnd'].iloc[0] if pd.notnull(data['FiscalYearEnd'].iloc[0]) else None
+            entry.latest_quarter = data['LatestQuarter'].iloc[0] if pd.notnull(data['LatestQuarter'].iloc[0]) else None
         
         elif table == FinancialMetrics:
             # Update fields specific to FinancialMetrics
-            entry.market_capitalization = data['MarketCapitalization'].iloc[0] if data['MarketCapitalization'].iloc[0] is not None else None
-            entry.ebitda = data['EBITDA'].iloc[0] if data['EBITDA'].iloc[0] is not None else None
-            entry.pe_ratio = data['PERatio'].iloc[0] if data['PERatio'].iloc[0] is not None else None
-            entry.peg_ratio = data['PEGRatio'].iloc[0] if data['PEGRatio'].iloc[0] is not None else None
-            entry.earnings_per_share = data['EPS'].iloc[0] if data['EPS'].iloc[0] is not None else None
-            entry.revenue_per_share_ttm = data['RevenuePerShareTTM'].iloc[0] if data['RevenuePerShareTTM'].iloc[0] is not None else None
-            entry.profit_margin = data['ProfitMargin'].iloc[0] if data['ProfitMargin'].iloc[0] is not None else None
-            entry.operating_margin_ttm = data['OperatingMarginTTM'].iloc[0] if data['OperatingMarginTTM'].iloc[0] is not None else None
-            entry.return_on_assets_ttm = data['ReturnOnAssetsTTM'].iloc[0] if data['ReturnOnAssetsTTM'].iloc[0] is not None else None
-            entry.return_on_equity_ttm = data['ReturnOnEquityTTM'].iloc[0] if data['ReturnOnEquityTTM'].iloc[0] is not None else None
-            entry.revenue_ttm = data['RevenueTTM'].iloc[0] if data['RevenueTTM'].iloc[0] is not None else None
-            entry.gross_profit_ttm = data['GrossProfitTTM'].iloc[0] if data['GrossProfitTTM'].iloc[0] is not None else None
-            entry.quarterly_earnings_growth_yoy = data['QuarterlyEarningsGrowthYOY'].iloc[0] if data['QuarterlyEarningsGrowthYOY'].iloc is not None else None
-            entry.quarterly_revenue_growth_yoy = data['QuarterlyRevenueGrowthYOY'].iloc[0] if data['QuarterlyRevenueGrowthYOY'].iloc is not None else None
-            entry.week_52_high = data['52WeekHigh'].iloc[0] if data['52WeekHigh'].iloc[0] is not None else None
-            entry.week_52_low = data['52WeekLow'].iloc[0] if data['52WeekLow'].iloc[0] is not None else None
+            entry.market_capitalization = data['MarketCapitalization'].iloc[0] if pd.notnull(data['MarketCapitalization'].iloc[0]) else None
+            entry.ebitda = data['EBITDA'].iloc[0] if pd.notnull(data['EBITDA'].iloc[0]) else None
+            entry.pe_ratio = data['PERatio'].iloc[0] if pd.notnull(data['PERatio'].iloc[0]) else None
+            entry.peg_ratio = data['PEGRatio'].iloc[0] if pd.notnull(data['PEGRatio'].iloc[0]) else None
+            entry.earnings_per_share = data['EPS'].iloc[0] if pd.notnull(data['EPS'].iloc[0]) else None
+            entry.revenue_per_share_ttm = data['RevenuePerShareTTM'].iloc[0] if pd.notnull(data['RevenuePerShareTTM'].iloc[0]) else None
+            entry.profit_margin = data['ProfitMargin'].iloc[0] if pd.notnull(data['ProfitMargin'].iloc[0]) else None
+            entry.operating_margin_ttm = data['OperatingMarginTTM'].iloc[0] if pd.notnull(data['OperatingMarginTTM'].iloc[0]) else None
+            entry.return_on_assets_ttm = data['ReturnOnAssetsTTM'].iloc[0] if pd.notnull(data['ReturnOnAssetsTTM'].iloc[0]) else None
+            entry.return_on_equity_ttm = data['ReturnOnEquityTTM'].iloc[0] if pd.notnull(data['ReturnOnEquityTTM'].iloc[0]) else None
+            entry.revenue_ttm = data['RevenueTTM'].iloc[0] if pd.notnull(data['RevenueTTM'].iloc[0]) else None
+            entry.gross_profit_ttm = data['GrossProfitTTM'].iloc[0] if pd.notnull(data['GrossProfitTTM'].iloc[0]) else None
+            entry.quarterly_earnings_growth_yoy = data['QuarterlyEarningsGrowthYOY'].iloc[0] if pd.notnull(data['QuarterlyEarningsGrowthYOY'].iloc[0]) else None
+            entry.quarterly_revenue_growth_yoy = data['QuarterlyRevenueGrowthYOY'].iloc[0] if pd.notnull(data['QuarterlyRevenueGrowthYOY'].iloc[0]) else None
+            entry.week_52_high = data['52WeekHigh'].iloc[0] if pd.notnull(data['52WeekHigh'].iloc[0]) else None
+            entry.week_52_low = data['52WeekLow'].iloc[0] if pd.notnull(data['52WeekLow'].iloc[0]) else None
     
         # Set the timestamp to the current datetime
         entry.timestamp = datetime.now()
 
-        # Add the entry to the SQLAlchemy session and commit it to the database
-        db.session.add(entry)
-        db.session.commit()
+        # Commit the session after all updates
+        session.commit()
         print(f"Success!")
     
-    # Handle IntegrityError, likely due to conflicts with unique constraints
+    # Rollback the session in case of integrity error
     except IntegrityError:
-        db.session.rollback()
+        session.rollback() 
         print(f"Integrity error for {symbol}. Data was not updated.")
-    # Handle SQLAlchemyError, a general database error
+    # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
-        db.session.rollback()
+        session.rollback() 
         print(f"Database error for {symbol}: {str(e)}")
-     # Handle other exceptions
+    # Rollback the session for any other exceptions
     except Exception as e:
+        session.rollback() 
         print(f"Error updating data for {symbol}: {str(e)}")
+    # Ensure the session is closed after operation
+    finally:
+        session.close() 
 
-# Function to check if data for a symbol is up-to-date within the last week
+def update_table_entry_ts(symbol, data):
+    # Create a session using the configured "Session" class
+    session = create_session()
+    try:
+        # Initialize a counter to keep track of iterations
+        counter = 0  
+        # Iterate over all rows in the DataFrame
+        for index, row in data.iterrows():
+            # Ensure the date is a datetime object
+            date = pd.to_datetime(index).normalize() 
+
+            # Check to see if an entry already exists for the symbol and date
+            existing_entry = session.query(TimeSeriesDailyData).filter_by(symbol=symbol, date=date).first()
+
+            if existing_entry:
+                # Entry already exists, update it
+                existing_entry.open_price = row['1. open'] if pd.notnull(row['1. open']) else None
+                existing_entry.high_price = row['2. high'] if pd.notnull(row['1. open']) else None
+                existing_entry.low_price = row['3. low'] if pd.notnull(row['3. low']) else None
+                existing_entry.close_price = row['4. close'] if pd.notnull(row['4. close']) else None
+                existing_entry.volume = row['5. volume'] if pd.notnull(row['5. volume']) else None
+                existing_entry.timestamp = datetime.now()
+                # Use merge to update existing entry
+                session.merge(existing_entry)
+            else:
+                # Entry does not exist, create a new one
+                new_entry = TimeSeriesDailyData(
+                    symbol = symbol,
+                    date = date,
+                    open_price = row['1. open'] if pd.notnull(row['1. open']) else None,
+                    high_price = row['2. high'] if pd.notnull(row['1. open']) else None,
+                    low_price = row['3. low'] if pd.notnull(row['3. low']) else None,
+                    close_price = row['4. close'] if pd.notnull(row['4. close']) else None,
+                    volume = row['5. volume'] if pd.notnull(row['5. volume']) else None,
+                    timestamp = datetime.now()
+                )
+                session.add(new_entry)
+                
+            # Commit every 500 records to avoid a large transaction
+            if counter % 500 == 0:
+                session.commit()
+
+            # Increment the counter at the end of each loop iteration
+            counter += 1  
+
+        # Commit the final batch
+        session.commit()
+        print(f"Time series data for {symbol} has been updated")
+
+    # Rollback the session in case of integrity error
+    except IntegrityError:
+        session.rollback() 
+        print(f"Integrity error for {symbol}. Data was not updated.")
+    # Rollback the session in case of other SQLAlchemy errors
+    except SQLAlchemyError as e:
+        session.rollback() 
+        print(f"Database error for {symbol}: {str(e)}")
+    # Rollback the session for any other exceptions
+    except Exception as e:
+        session.rollback() 
+        print(f"Error updating data for {symbol}: {str(e)}")
+    # Ensure the session is closed after operation
+    finally:
+        session.close() 
+
+# Function to check if data for a symbol is up-to-date
 def is_data_up_to_date(symbol, table):
+    session = create_session()
     try:
         # Retrieve the entry for the symbol
-        entry = table.query.filter_by(symbol = symbol).first()
+        entry = table.query.filter_by(symbol=symbol).first()
         if entry:
-            # Check if the entry's timestamp is within the last week
-            last_week = datetime.now() - timedelta(days=7)
-            return entry.timestamp >= last_week
+            if table == CompanyInformation or table == FinancialMetrics:
+                # Check if the entry's timestamp is within the last week
+                last_week = datetime.now() - timedelta(days=7)
+                return entry.timestamp >= last_week
+            elif table == TimeSeriesDailyData:
+                # Check if the entry's timestamp is within the same day
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                return entry.timestamp >= today
         # If no entry exists, data is not up-to-date
         return False
 
-    # Handle SQLAlchemyError
+    # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
         print(f"Database error for {symbol}: {str(e)}")
         return False
-    # Handle other exceptions
+    # Rollback the session for any other exceptions
     except Exception as e:
         print(f"Error checking data for {symbol}: {str(e)}")
         return False
-
-# Function to fetch and store stock data
+    # Ensure the session is closed after operation
+    finally:
+        session.close()
+    
+# Function to fetch and store stock data and time series data
 def fetch_and_store_stock_data(symbol):
-    if is_data_up_to_date(symbol, CompanyInformation) and is_data_up_to_date(symbol, FinancialMetrics):
-        print(f"Using existing data for {symbol}")
-        return
+    # Ensure that this function is always called within an application context
+    with current_app.app_context():
+        # Check if overview data is up-to-date
+        if not is_data_up_to_date(symbol, CompanyInformation) or not is_data_up_to_date(symbol, FinancialMetrics):
+            # Fetch and update overview data
+            data_ov, _ = get_stock_ov_data(symbol)
+            update_table_entry_ov(CompanyInformation, symbol, data_ov)
+            update_table_entry_ov(FinancialMetrics, symbol, data_ov)
+        else:
+            print(f"Using existing overview data for {symbol}")
 
-    data, _ = get_stock_data(symbol)
-    update_table_entry(CompanyInformation, symbol, data)
-    update_table_entry(FinancialMetrics, symbol, data)
-    print(f"Data for {symbol} has been updated")
+        # Fetch and update time series data
+        data_ts, _ = get_daily_time_series_data(symbol)
+        update_table_entry_ts(symbol, data_ts)
+        
+    #if not is_data_up_to_date(symbol, TimeSeriesDailyData):
+        #data_ts, _ = get_daily_time_series_data(symbol)
+        #update_table_entry_ts(symbol, data_ts)
+    #else:
+        #print(f"Using existing time series data {symbol}")
+        
+        
