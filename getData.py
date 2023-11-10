@@ -57,6 +57,7 @@ class TimeSeriesDailyData(db.Model):
 
 # Function to get stock data from the AlphaVantage API
 def get_stock_ov_data(symbol):
+    
     # Create an AlphaVantage client
     ov = FundamentalData(key=API_key, output_format='pandas')
     
@@ -66,20 +67,25 @@ def get_stock_ov_data(symbol):
     return data, meta_data
 
 def get_daily_time_series_data(symbol):
+    
     # Create an AlphaVantage client
     ts = TimeSeries(key=API_key, output_format='pandas')
     
-    # Retrieve company overview data from the given symbol
-    data, meta_data = ts.get_daily(symbol=symbol)
+    # Retrieve full daily time series data for the given symbol
+    data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
     
     return data, meta_data
 
 # Function to update a table entry with new data
 def update_table_entry_ov(table, symbol, data):
+    
+    # Create a session using the configured "Session" class
     session = create_session()
+    
     try:
         # Check to see if entry already exists for symbol
         entry = session.query(table).filter_by(symbol=symbol).first()
+        
         # If entry for symbol does not already exist, create a new one
         if not entry:
             entry = table(symbol=symbol)
@@ -142,34 +148,48 @@ def update_table_entry_ov(table, symbol, data):
         session.close() 
 
 def update_table_entry_ts(symbol, data):
+    
     # Create a session using the configured "Session" class
     session = create_session()
+    
+    # Sort data in descending order by date
+    data = data.sort_index(ascending=False)
+    
+    # Initialize a counter to keep track of iterations
+    counter = 0 
+        
+    # Initialize a counter for existing entries
+    existing_entries_count = 0
+        
+    # Placeholder for the last checked date
+    last_checked_date = None
+    
     try:
-        # Initialize a counter to keep track of iterations
-        counter = 0  
         # Iterate over all rows in the DataFrame
         for index, row in data.iterrows():
-            # Ensure the date is a datetime object
-            date = pd.to_datetime(index).normalize() 
-
-            # Check to see if an entry already exists for the symbol and date
-            existing_entry = session.query(TimeSeriesDailyData).filter_by(symbol=symbol, date=date).first()
-
+            current_date = pd.to_datetime(index).normalize()
+            
+            # Check for existing entry
+            existing_entry = session.query(TimeSeriesDailyData).filter_by(symbol=symbol, date=current_date).first()
+        
             if existing_entry:
-                # Entry already exists, update it
-                existing_entry.open_price = row['1. open'] if pd.notnull(row['1. open']) else None
-                existing_entry.high_price = row['2. high'] if pd.notnull(row['1. open']) else None
-                existing_entry.low_price = row['3. low'] if pd.notnull(row['3. low']) else None
-                existing_entry.close_price = row['4. close'] if pd.notnull(row['4. close']) else None
-                existing_entry.volume = row['5. volume'] if pd.notnull(row['5. volume']) else None
-                existing_entry.timestamp = datetime.now()
-                # Use merge to update existing entry
-                session.merge(existing_entry)
+                # Increment count if the date is consecutive
+                if last_checked_date and current_date == last_checked_date - pd.Timedelta(days=1):
+                    existing_entries_count += 1
+                # Reset count if not consecutive
+                else:
+                    existing_entries_count = 1  
+
+                # break the loop once 30 consecutive existing entries are found
+                # as it is unlikley there is new data to add at this point
+                if existing_entries_count >= 30:
+                    print("30 consecutive existing entries found, aborting.")
+                    break  
+            # Entry does not exist, create a new one
             else:
-                # Entry does not exist, create a new one
                 new_entry = TimeSeriesDailyData(
                     symbol = symbol,
-                    date = date,
+                    date = current_date,
                     open_price = row['1. open'] if pd.notnull(row['1. open']) else None,
                     high_price = row['2. high'] if pd.notnull(row['1. open']) else None,
                     low_price = row['3. low'] if pd.notnull(row['3. low']) else None,
@@ -179,6 +199,9 @@ def update_table_entry_ts(symbol, data):
                 )
                 session.add(new_entry)
                 
+            # Update the last checked date
+            last_checked_date = current_date
+            
             # Commit every 500 records to avoid a large transaction
             if counter % 500 == 0:
                 session.commit()
@@ -208,15 +231,22 @@ def update_table_entry_ts(symbol, data):
 
 # Function to check if data for a symbol is up-to-date
 def is_data_up_to_date(symbol, table):
+    
+    # Create a session using the configured "Session" class
     session = create_session()
+    
     try:
         # Retrieve the entry for the symbol
         entry = table.query.filter_by(symbol=symbol).first()
+        
+        # check to see when the entry was last updated
         if entry:
+            # check to see when entries from CompanyInformation or FinancialMetrics were last updated
             if table == CompanyInformation or table == FinancialMetrics:
                 # Check if the entry's timestamp is within the last week
                 last_week = datetime.now() - timedelta(days=7)
                 return entry.timestamp >= last_week
+            # check to see when entries from TimeSeriesDailyData weere last updated
             elif table == TimeSeriesDailyData:
                 # Check if the entry's timestamp is within the same day
                 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -240,7 +270,8 @@ def is_data_up_to_date(symbol, table):
 def fetch_and_store_stock_data(symbol):
     # Ensure that this function is always called within an application context
     with current_app.app_context():
-        # Check if overview data is up-to-date
+        # Check if overview data is up-to-date,
+        # API call will only be done if the data has not been updated within the last week
         if not is_data_up_to_date(symbol, CompanyInformation) or not is_data_up_to_date(symbol, FinancialMetrics):
             # Fetch and update overview data
             data_ov, _ = get_stock_ov_data(symbol)
@@ -249,14 +280,12 @@ def fetch_and_store_stock_data(symbol):
         else:
             print(f"Using existing overview data for {symbol}")
 
-        # Fetch and update time series data
-        data_ts, _ = get_daily_time_series_data(symbol)
-        update_table_entry_ts(symbol, data_ts)
-        
-    #if not is_data_up_to_date(symbol, TimeSeriesDailyData):
-        #data_ts, _ = get_daily_time_series_data(symbol)
-        #update_table_entry_ts(symbol, data_ts)
-    #else:
-        #print(f"Using existing time series data {symbol}")
+        # Check if daily time series data is up-to-date,
+        # API call will only be done if the data has not been updated within the same day
+        if not is_data_up_to_date(symbol, TimeSeriesDailyData):
+            data_ts, _ = get_daily_time_series_data(symbol)
+            update_table_entry_ts(symbol, data_ts)
+        else:
+            print(f"Using existing time series data {symbol}")
         
         
