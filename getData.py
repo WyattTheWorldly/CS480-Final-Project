@@ -9,7 +9,6 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 # This file is for retrieving data from the API, creating tables in the datebase, 
 # and creating and updating table entries
 
-
 # Key that allows access to API
 API_key = 'N8LVC6JOGADHP6RE'
 
@@ -176,7 +175,6 @@ def update_table_entry_ov(table, symbol, data):
 
         # Commit the session after all updates
         session.commit()
-        print(f"Success!")
     
     # Rollback the session in case of integrity error
     except IntegrityError:
@@ -266,7 +264,7 @@ def update_table_entry_ts(symbol, data):
 
         # Commit the final batch
         session.commit()
-        print(f"Time series data for {symbol} has been updated")
+        print(f"Daily Time Series data for {symbol} has been updated")
 
     # Rollback the session in case of integrity error
     except IntegrityError:
@@ -353,7 +351,7 @@ def update_table_entry_intraday(symbol, data):
 
         # Commit the final batch
         session.commit()
-        print(f"Intraday time series data for {symbol} has been updated")
+        print(f"Intraday Time Series data for {symbol} has been updated")
 
     # Rollback the session in case of integrity error
     except IntegrityError:
@@ -429,6 +427,7 @@ def fetch_and_store_stock_data(symbol):
             data_ov, _ = get_stock_ov_data(symbol)
             update_table_entry_ov(CompanyInformation, symbol, data_ov)
             update_table_entry_ov(FinancialMetrics, symbol, data_ov)
+            print(f"Company Overview data for {symbol} has been updated")
         else:
             print(f"Using existing overview data for {symbol}")
 
