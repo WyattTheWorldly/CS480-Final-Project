@@ -6,9 +6,25 @@ import pandas as pd
 from flask import current_app
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+# This file is for retrieving data from the API, creating tables in the datebase, 
+# and creating and updating table entries
+
 
 # Key that allows access to API
 API_key = 'N8LVC6JOGADHP6RE'
+
+# Global variable to keep track of API calls
+api_call_count = 0
+
+def track_api_call():
+    global api_call_count
+    api_call_count += 1
+
+    # Print warning messages at specific thresholds
+    if api_call_count == 10:
+        print("Warning: Only 15 API calls remaining.")
+    elif api_call_count == 20:
+        print("Warning: Only 5 API calls remaining.")
 
 # Defining tables for database
 class CompanyInformation(db.Model):
@@ -54,9 +70,22 @@ class TimeSeriesDailyData(db.Model):
     close_price = db.Column(db.Float)
     volume = db.Column(db.Float)
     timestamp = db.Column(db.DateTime)
+    
+class TimeSeriesIntraDayData(db.Model):
+    symbol = db.Column(db.String(10), primary_key=True)
+    datetime = db.Column(db.DateTime, primary_key=True)
+    open_price = db.Column(db.Float)
+    high_price = db.Column(db.Float)
+    low_price = db.Column(db.Float)
+    close_price = db.Column(db.Float)
+    volume = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime)
 
-# Function to get stock data from the AlphaVantage API
+# Functions to get stock data from the AlphaVantage API
+# Retrieves data from Company Overview data
 def get_stock_ov_data(symbol):
+    
+    track_api_call()
     
     # Create an AlphaVantage client
     ov = FundamentalData(key=API_key, output_format='pandas')
@@ -66,7 +95,10 @@ def get_stock_ov_data(symbol):
     
     return data, meta_data
 
+# Retrieves Time Series Daily data
 def get_daily_time_series_data(symbol):
+    
+    track_api_call()
     
     # Create an AlphaVantage client
     ts = TimeSeries(key=API_key, output_format='pandas')
@@ -76,10 +108,25 @@ def get_daily_time_series_data(symbol):
     
     return data, meta_data
 
+# Retrieves Time Series Intraday data
+def get_intraday_time_series_data(symbol, interval='5min'):
+    
+    track_api_call()
+    
+    # Create an AlphaVantage client
+    ts = TimeSeries(key=API_key, output_format='pandas')
+    
+    # Retrieve intraday time series data for the given symbol
+    data, meta_data = ts.get_intraday(symbol=symbol, interval=interval, outputsize='full')
+    
+    return data, meta_data
+
 # Function to update a table entry with new data
+# Creates and updates entries on the CompanyInformation and FinancialMetrics table,
+# as they are both store data from the same API call
 def update_table_entry_ov(table, symbol, data):
     
-    # Create a session using the configured "Session" class
+    # Create a new database session
     session = create_session()
     
     try:
@@ -147,12 +194,14 @@ def update_table_entry_ov(table, symbol, data):
     finally:
         session.close() 
 
+# Creates and updates entries on the TimeSeriesDailyData table
 def update_table_entry_ts(symbol, data):
     
-    # Create a session using the configured "Session" class
+    # Create a new database session
     session = create_session()
     
-    # Sort data in descending order by date
+    # Sort data in descending order by date, 
+    # so that newest to oldest data is checked first
     data = data.sort_index(ascending=False)
     
     # Initialize a counter to keep track of iterations
@@ -172,19 +221,25 @@ def update_table_entry_ts(symbol, data):
             # Check for existing entry
             existing_entry = session.query(TimeSeriesDailyData).filter_by(symbol=symbol, date=current_date).first()
         
+            # If entry exists 
             if existing_entry:
-                # Increment count if the date is consecutive
+                # If the current date is exactly one day after the last checked date,
+                # it means data is consecutive. In this case, increment the count.
                 if last_checked_date and current_date == last_checked_date - pd.Timedelta(days=1):
                     existing_entries_count += 1
-                # Reset count if not consecutive
+                
+                # If the current date is not consecutive, reset the count to 1
+                # as this is a new sequence of data.
                 else:
                     existing_entries_count = 1  
 
-                # break the loop once 30 consecutive existing entries are found
-                # as it is unlikley there is new data to add at this point
+                # If there are 30 consecutive existing entries, it's assumed that
+                # there is unlikely to be new data to add. So, the loop is broken
+                # to stop further unnecessary processing.
                 if existing_entries_count >= 30:
                     print("30 consecutive existing entries found, aborting.")
                     break  
+            
             # Entry does not exist, create a new one
             else:
                 new_entry = TimeSeriesDailyData(
@@ -229,30 +284,127 @@ def update_table_entry_ts(symbol, data):
     finally:
         session.close() 
 
+# Creates and updates entries on the TimeSeriesIntraDayData table
+def update_table_entry_intraday(symbol, data):
+    
+    # Create a new database session
+    session = create_session()
+    
+    # Sort data in descending order by date, 
+    # so that newest to oldest data is checked first
+    data = data.sort_index(ascending=False)
+
+    # Initialize a counter to keep track of iterations
+    counter = 0 
+        
+    # Initialize a counter for existing entries
+    existing_entries_count = 0
+    
+    # Placeholder for the last checked date
+    last_checked_datetime = None
+
+    try:
+        # Iterate over all rows in the DataFrame
+        for index, row in data.iterrows():
+            current_datetime = pd.to_datetime(index)
+
+            # Check for existing entry
+            existing_entry = session.query(TimeSeriesIntraDayData).filter_by(symbol=symbol, datetime=current_datetime).first()
+
+            # If entry exists 
+            if existing_entry:
+                # Check if the current datetime is exactly 5 minutes after the last checked datetime
+                if last_checked_datetime and current_datetime == last_checked_datetime - pd.Timedelta(minutes=5):
+                    # Increment the count for consecutive entries
+                    existing_entries_count += 1
+                else:
+                    # Reset the count if the entries are not consecutive
+                    existing_entries_count = 1
+
+                # If there are 288 (equates to 3 business day's worth of 5 min increments)
+                # consecutive existing entries, it's assumed that
+                # there is unlikely to be new data to add. So, the loop is broken
+                # to stop further unnecessary processing.
+                if existing_entries_count >= 288:
+                    print("288 consecutive existing entries found, aborting.")
+                    break
+            
+            # Entry does not exist, create a new one
+            else:
+                new_entry = TimeSeriesIntraDayData(
+                    symbol=symbol,
+                    datetime=current_datetime,
+                    open_price=row['1. open'],
+                    high_price=row['2. high'],
+                    low_price=row['3. low'],
+                    close_price=row['4. close'],
+                    volume=row['5. volume'],
+                    timestamp=datetime.now()
+                )
+                session.add(new_entry)
+
+            # Update the last checked date
+            last_checked_datetime = current_datetime
+
+            # Commit every 500 records to avoid a large transaction
+            if counter % 500 == 0:
+                session.commit()
+            counter += 1
+
+        # Commit the final batch
+        session.commit()
+        print(f"Intraday time series data for {symbol} has been updated")
+
+    # Rollback the session in case of integrity error
+    except IntegrityError:
+        session.rollback()
+        print(f"Integrity error for {symbol}. Data was not updated.")
+    # Rollback the session in case of other SQLAlchemy errors
+    except SQLAlchemyError as e:
+        session.rollback()
+        print(f"Database error for {symbol}: {str(e)}")
+    # Rollback the session for any other exceptions
+    except Exception as e:
+        session.rollback()
+        print(f"Error updating data for {symbol}: {str(e)}")
+    # Ensure the session is closed after operation
+    finally:
+        session.close()
+
 # Function to check if data for a symbol is up-to-date
 def is_data_up_to_date(symbol, table):
     
     # Create a session using the configured "Session" class
     session = create_session()
     
+    # check to see when the entry was last updated
     try:
-        # Retrieve the entry for the symbol
+        
         entry = table.query.filter_by(symbol=symbol).first()
         
-        # check to see when the entry was last updated
-        if entry:
-            # check to see when entries from CompanyInformation or FinancialMetrics were last updated
-            if table == CompanyInformation or table == FinancialMetrics:
+        # check to see when the entry was last updated for TimeSeriesDailyData
+        if table == TimeSeriesDailyData:
+            # retrieve the most recent entry for the symbol from TimeSeriesDailyData
+            entry = session.query(table).filter_by(symbol=symbol).order_by(table.date.desc()).first()
+            
+            # Check if the entry's timestamp is within the same day
+            if entry:
+                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                return entry.timestamp >= today
+            
+        # check to see when the entry was last updated for CompanyInformation or FinancialMetrics
+        else:
+            # retrieve entry with same symbol
+            entry = session.query(table).filter_by(symbol=symbol).first()
+            
+            if entry:
                 # Check if the entry's timestamp is within the last week
                 last_week = datetime.now() - timedelta(days=7)
                 return entry.timestamp >= last_week
-            # check to see when entries from TimeSeriesDailyData weere last updated
-            elif table == TimeSeriesDailyData:
-                # Check if the entry's timestamp is within the same day
-                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-                return entry.timestamp >= today
+
         # If no entry exists, data is not up-to-date
         return False
+
 
     # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
@@ -287,5 +439,9 @@ def fetch_and_store_stock_data(symbol):
             update_table_entry_ts(symbol, data_ts)
         else:
             print(f"Using existing time series data {symbol}")
+            
+        # Available asynchronously, no checking to see when it was last updated.
+        data_intraday, _ = get_intraday_time_series_data(symbol)
+        update_table_entry_intraday(symbol, data_intraday)
         
         
