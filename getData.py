@@ -24,6 +24,16 @@ def track_api_call():
         print("Warning: Only 15 API calls remaining.")
     elif api_call_count == 20:
         print("Warning: Only 5 API calls remaining.")
+        
+# Function that validates the field value against the expected data type.
+# Returns None if the value is NaN or not of the expected type.
+def validate_field(value, expected_type):
+    if pd.isnull(value):
+        return None
+    elif isinstance(value, expected_type):
+        return value
+    else:
+        return None
 
 # Defining tables for database
 class CompanyInformation(db.Model):
@@ -140,35 +150,35 @@ def update_table_entry_ov(table, symbol, data):
         # Check the type of table and update the fields accordingly
         if isinstance(entry, CompanyInformation):
             # Update fields specific to CompanyInformation
-            entry.name = data['Name'].iloc[0] if pd.notnull(data['Name'].iloc[0]) else None
-            entry.description = data['Description'].iloc[0] if pd.notnull(data['Description'].iloc[0]) else None
-            entry.asset_type = data['AssetType'].iloc[0] if pd.notnull(data['AssetType'].iloc[0]) else None
-            entry.exchange = data['Exchange'].iloc[0] if pd.notnull(data['Exchange'].iloc[0]) else None
-            entry.currency = data['Currency'].iloc[0] if pd.notnull(data['Currency'].iloc[0]) else None
-            entry.country = data['Country'].iloc[0] if pd.notnull(data['Country'].iloc[0]) else None
-            entry.sector = data['Sector'].iloc[0] if pd.notnull(data['Sector'].iloc[0]) else None
-            entry.industry = data['Industry'].iloc[0] if pd.notnull(data['Industry'].iloc[0]) else None
-            entry.fiscal_year_end = data['FiscalYearEnd'].iloc[0] if pd.notnull(data['FiscalYearEnd'].iloc[0]) else None
-            entry.latest_quarter = data['LatestQuarter'].iloc[0] if pd.notnull(data['LatestQuarter'].iloc[0]) else None
+            entry.name = validate_field(data['Name'].iloc[0], str)
+            entry.description = validate_field(data['Description'].iloc[0], str)
+            entry.asset_type = validate_field(data['AssetType'].iloc[0], str)
+            entry.exchange = validate_field(data['Exchange'].iloc[0], str)
+            entry.currency = validate_field(data['Currency'].iloc[0], str)
+            entry.country = validate_field(data['Country'].iloc[0], str)
+            entry.sector = validate_field(data['Sector'].iloc[0], str)
+            entry.industry = validate_field(data['Industry'].iloc[0], str)
+            entry.fiscal_year_end = validate_field(data['FiscalYearEnd'].iloc[0], str)
+            entry.latest_quarter = validate_field(data['LatestQuarter'].iloc[0], str)
         
         elif table == FinancialMetrics:
             # Update fields specific to FinancialMetrics
-            entry.market_capitalization = data['MarketCapitalization'].iloc[0] if pd.notnull(data['MarketCapitalization'].iloc[0]) else None
-            entry.ebitda = data['EBITDA'].iloc[0] if pd.notnull(data['EBITDA'].iloc[0]) else None
-            entry.pe_ratio = data['PERatio'].iloc[0] if pd.notnull(data['PERatio'].iloc[0]) else None
-            entry.peg_ratio = data['PEGRatio'].iloc[0] if pd.notnull(data['PEGRatio'].iloc[0]) else None
-            entry.earnings_per_share = data['EPS'].iloc[0] if pd.notnull(data['EPS'].iloc[0]) else None
-            entry.revenue_per_share_ttm = data['RevenuePerShareTTM'].iloc[0] if pd.notnull(data['RevenuePerShareTTM'].iloc[0]) else None
-            entry.profit_margin = data['ProfitMargin'].iloc[0] if pd.notnull(data['ProfitMargin'].iloc[0]) else None
-            entry.operating_margin_ttm = data['OperatingMarginTTM'].iloc[0] if pd.notnull(data['OperatingMarginTTM'].iloc[0]) else None
-            entry.return_on_assets_ttm = data['ReturnOnAssetsTTM'].iloc[0] if pd.notnull(data['ReturnOnAssetsTTM'].iloc[0]) else None
-            entry.return_on_equity_ttm = data['ReturnOnEquityTTM'].iloc[0] if pd.notnull(data['ReturnOnEquityTTM'].iloc[0]) else None
-            entry.revenue_ttm = data['RevenueTTM'].iloc[0] if pd.notnull(data['RevenueTTM'].iloc[0]) else None
-            entry.gross_profit_ttm = data['GrossProfitTTM'].iloc[0] if pd.notnull(data['GrossProfitTTM'].iloc[0]) else None
-            entry.quarterly_earnings_growth_yoy = data['QuarterlyEarningsGrowthYOY'].iloc[0] if pd.notnull(data['QuarterlyEarningsGrowthYOY'].iloc[0]) else None
-            entry.quarterly_revenue_growth_yoy = data['QuarterlyRevenueGrowthYOY'].iloc[0] if pd.notnull(data['QuarterlyRevenueGrowthYOY'].iloc[0]) else None
-            entry.week_52_high = data['52WeekHigh'].iloc[0] if pd.notnull(data['52WeekHigh'].iloc[0]) else None
-            entry.week_52_low = data['52WeekLow'].iloc[0] if pd.notnull(data['52WeekLow'].iloc[0]) else None
+            entry.market_capitalization = validate_field(data['MarketCapitalization'].iloc[0], (int, float))
+            entry.ebitda = validate_field(data['EBITDA'].iloc[0], float)
+            entry.pe_ratio = validate_field(data['PERatio'].iloc[0], float)
+            entry.peg_ratio = validate_field(data['PEGRatio'].iloc[0], float)
+            entry.earnings_per_share = validate_field(data['EPS'].iloc[0], float)
+            entry.revenue_per_share_ttm = validate_field(data['RevenuePerShareTTM'].iloc[0], float)
+            entry.profit_margin = validate_field(data['ProfitMargin'].iloc[0], float)
+            entry.operating_margin_ttm = validate_field(data['OperatingMarginTTM'].iloc[0], float)
+            entry.return_on_assets_ttm = validate_field(data['ReturnOnAssetsTTM'].iloc[0], float)
+            entry.return_on_equity_ttm = validate_field(data['ReturnOnEquityTTM'].iloc[0], float)
+            entry.revenue_ttm = validate_field(data['RevenueTTM'].iloc[0], float)
+            entry.gross_profit_ttm = validate_field(data['GrossProfitTTM'].iloc[0], float)
+            entry.quarterly_earnings_growth_yoy = validate_field(data['QuarterlyEarningsGrowthYOY'].iloc[0], float)
+            entry.quarterly_revenue_growth_yoy = validate_field(data['QuarterlyRevenueGrowthYOY'].iloc[0], float)
+            entry.week_52_high = validate_field(data['52WeekHigh'].iloc[0], float)
+            entry.week_52_low = validate_field(data['52WeekLow'].iloc[0], float)
     
         # Set the timestamp to the current datetime
         entry.timestamp = datetime.now()
@@ -243,11 +253,11 @@ def update_table_entry_ts(symbol, data):
                 new_entry = TimeSeriesDailyData(
                     symbol = symbol,
                     date = current_date,
-                    open_price = row['1. open'] if pd.notnull(row['1. open']) else None,
-                    high_price = row['2. high'] if pd.notnull(row['1. open']) else None,
-                    low_price = row['3. low'] if pd.notnull(row['3. low']) else None,
-                    close_price = row['4. close'] if pd.notnull(row['4. close']) else None,
-                    volume = row['5. volume'] if pd.notnull(row['5. volume']) else None,
+                    open_price = validate_field(row['1. open'], float),
+                    high_price = validate_field(row['2. high'], float),
+                    low_price = validate_field(row['3. low'], float),
+                    close_price = validate_field(row['4. close'], float),
+                    volume = validate_field(row['5. volume'], float),
                     timestamp = datetime.now()
                 )
                 session.add(new_entry)
@@ -332,11 +342,11 @@ def update_table_entry_intraday(symbol, data):
                 new_entry = TimeSeriesIntraDayData(
                     symbol=symbol,
                     datetime=current_datetime,
-                    open_price=row['1. open'],
-                    high_price=row['2. high'],
-                    low_price=row['3. low'],
-                    close_price=row['4. close'],
-                    volume=row['5. volume'],
+                    open_price=validate_field(row['1. open'], float),
+                    high_price=validate_field(row['2. high'], float),
+                    low_price=validate_field(row['3. low'], float),
+                    close_price=validate_field(row['4. close'], float),
+                    volume=validate_field(row['5. volume'], float),
                     timestamp=datetime.now()
                 )
                 session.add(new_entry)
