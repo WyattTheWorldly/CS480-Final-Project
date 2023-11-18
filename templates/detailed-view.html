@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %} Stocks {% endblock %}
+
+{% block content %}
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 500px;
+
+        }
+
+
+        /* Right Column Styles */
+        .right-column {
+        	flex-grow: 1;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: white;
+            font-size: 20pt;
+        }
+
+        input[type="text"] {
+            width: 100px;
+        }
+
+        nav {
+            background-color: #555;
+            padding: 20px;
+			overflow-y: scroll;
+            height: 450px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px 0;
+        }
+
+        nav a:hover {
+            background-color: #777;
+        }
+
+
+    </style>
+
+    <!-- Left Column -->
+    <div class="left-column">
+
+        <nav>
+        <h1>Group D</h1>
+            <form action="/search" method="get">
+                <input type="text" name="search"                        placeholder="Search...">
+                <input type="submit" value="Search">
+            </form>
+
+        </nav>
+        <nav>
+           	<a href="#Apple">Apple Inc</a>
+        	<a href="#Amazon">Amazon.com Inc</a>
+        	<a href="#Broad">Broad.com Inc</a>
+        	<a href="#Berkshire">Berkshire Hathaway Inc</a>
+        	<a href="#Chevron">Chevron Corp</a>
+        	<a href="#AlphabetC">Alphabet Inc Class C</a>
+        	<a href="#AlphabetA">Alphabet Inc Class A</a>
+        	<a href="#HomeDepot">Home Depot Inc</a>
+        	<a href="#Johnson">Johnson & Johnson</a>
+        	<a href="#JPMorgan">JPMorgan Chase & Co</a>
+        	<a href="#EliLilly">Eli Lilly & Company</a>
+        	<a href="#Mastercard">Mastercard Inc</a>
+        	<a href="#Meta">Meta Platforms Inc</a>
+        	<a href="#Microsoft">Microsoft Corporation</a>
+        	<a href="#NVIDIA">NVIDIA Corporation</a>
+        	<a href="#Procter">Procter & Gamble Company</a>
+        	<a href="#Tesla">Tesla Inc</a>
+        	<a href="#United">UnitedHealth Group Incorporated</a>
+        	<a href="#VisaA">Visa Inc. Class A</a>
+        	<a href="#Exxon">Exxon Mobil Corp</a>
+
+        </nav>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+
+    </div>
+{% endblock %}
