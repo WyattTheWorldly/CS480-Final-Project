@@ -3,11 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Finacial Data{% endblock %}</title>
+  <title>Financial App - {% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="static/css/main.css">
 </head>
 <body>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        height: 100%;
+    }
 
+
+    .content {
+        margin-left: 290px;
+    }
+
+    h1 {
+        color: #555555;
+        font-size: 20pt;
+    }
+
+
+    input[type="text"] {
+        width: auto;
+    }
+
+    nav {
+        position: fixed;
+        width: 250px;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #555;
+        padding: 20px;
+        overflow-y: scroll;
+        height: 100%;
+        overflow-x: hidden;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 10px 0px 10px 0px;
+    }
+
+    nav a:hover {
+        background-color: #777;
+    }
+
+
+</style>
+
+<!-- Left Column -->
+<div class="left-column">
+
+    <nav>
+        <h1 style="color: white;font-size: 20pt;">Group D</h1>
+        <form action="/search" method="get">
+            <input type="text" name="search" placeholder="Search...">
+            <input type="submit" value="Search">
+        </form>
+        <a href="{{ url_for('stock_view', stockv='AAPL') }}">Apple Inc</a>
+        <a href="{{ url_for('stock_view', stockv='AMZN') }}">Amazon.com Inc</a>
+        <a href="{{ url_for('stock_view', stockv='BOARD') }}">Broad.com Inc</a>
+        <a href="#Berkshire">Berkshire Hathaway Inc</a>
+        <a href="#Chevron">Chevron Corp</a>
+        <a href="#AlphabetC">Alphabet Inc Class C</a>
+        <a href="#AlphabetA">Alphabet Inc Class A</a>
+        <a href="#HomeDepot">Home Depot Inc</a>
+        <a href="#Johnson">Johnson & Johnson</a>
+        <a href="#JPMorgan">JPMorgan Chase & Co</a>
+        <a href="#EliLilly">Eli Lilly & Company</a>
+        <a href="#Mastercard">Mastercard Inc</a>
+        <a href="#Meta">Meta Platforms Inc</a>
+        <a href="#Microsoft">Microsoft Corporation</a>
+        <a href="#NVIDIA">NVIDIA Corporation</a>
+        <a href="#Procter">Procter & Gamble Company</a>
+        <a href="#Tesla">Tesla Inc</a>
+        <a href="#United">UnitedHealth Group Incorporated</a>
+        <a href="#VisaA">Visa Inc. Class A</a>
+        <a href="#Exxon">Exxon Mobil Corp</a>
+
+    </nav>
+</div>
 <div class="content">
   {% block content %}{% endblock %}
 </div>

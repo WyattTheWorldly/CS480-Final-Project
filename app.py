@@ -15,6 +15,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+
 # Routes
 @app.route('/fetch_data/<symbol>')
 def fetch_data(symbol):
@@ -25,9 +26,23 @@ def fetch_data(symbol):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# Renders the stock_views page, the <stockv> is the stock name to render
+# Refer to base.html for examples of use in navbar
+@app.route('/stock_view/<stockv>')
+def stock_view(stockv):
+    if stockv == 'AAPL':
+        return render_template('APPL.html', stockv=stockv)
+    elif stockv == 'AMZN':
+        return render_template('AMZN.html', stockv=stockv)
+    else:
+        return render_template('index.html', stockv=stockv)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

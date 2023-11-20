@@ -3,17 +3,12 @@
 {% block title %} Stocks {% endblock %}
 
 {% block content %}
-
     <style>
         body {
-            margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            height: 500px;
-
+            height: 100%;
         }
-
 
         /* Right Column Styles */
         .right-column {
@@ -28,21 +23,22 @@
         }
 
         input[type="text"] {
-            width: 100px;
+            width: auto;
         }
 
         nav {
             background-color: #555;
             padding: 20px;
 			overflow-y: scroll;
-            height: 450px;
+            height: 100%;
+            overflow-x: hidden;
         }
 
         nav a {
             color: white;
             text-decoration: none;
             display: block;
-            padding: 10px 0;
+            padding: 10px 0px 10px 0px;
         }
 
         nav a:hover {
@@ -58,12 +54,9 @@
         <nav>
         <h1>Group D</h1>
             <form action="/search" method="get">
-                <input type="text" name="search"                        placeholder="Search...">
+                <input type="text" name="search" placeholder="Search...">
                 <input type="submit" value="Search">
             </form>
-
-        </nav>
-        <nav>
            	<a href="#Apple">Apple Inc</a>
         	<a href="#Amazon">Amazon.com Inc</a>
         	<a href="#Broad">Broad.com Inc</a>
@@ -87,9 +80,10 @@
 
         </nav>
     </div>
-
+{% endblock %}
+{% block content2 %}
     <!-- Right Column -->
-    <div class="right-column">
-
+    <div class="main">
+        <p> Sample text</p>
     </div>
 {% endblock %}
