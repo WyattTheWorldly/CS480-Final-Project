@@ -49,6 +49,8 @@ class CompanyInformation(db.Model):
     fiscal_year_end = db.Column(db.String(20))  
     latest_quarter = db.Column(db.String(20))  
     timestamp = db.Column(db.DateTime)
+    def __str__(self):
+        return str(f"<{self.symbol}>" + '\n' + f"<{self.name}>" + '\n' + f"<{self.asset_type}>" + '\n' + f"<{self.description}>" + '\n' + f"<{self.exchange}>" + '\n' + f"<{self.currency}>" + '\n' + f"<{self.country}>" + '\n' + f"<{self.sector}>" + '\n' + f"<{self.industry}>" + '\n' + f"<{self.fiscal_year_end}>" + '\n' + f"<{self.latest_quarter}>" + '\n' + f"<{self.timestamp}>")
     
 class FinancialMetrics(db.Model):
     symbol = db.Column(db.String(10), unique=True, primary_key=True)
@@ -69,6 +71,8 @@ class FinancialMetrics(db.Model):
     week_52_high = db.Column(db.Float) 
     week_52_low = db.Column(db.Float)  
     timestamp = db.Column(db.DateTime)
+    def __str__(self):
+        return str(f"<{self.symbol}>" + '\n' + f"<{self.market_capitalization}>" + '\n' + f"<{self.ebitda}>" + '\n' + f"<{self.pe_ratio}>" + '\n' + f"<{self.peg_ratio}>" + '\n' + f"<{self.earnings_per_share}>" + '\n' + f"<{self.revenue_per_share_ttm}>" + '\n' + f"<{self.profit_margin}>" + '\n' + f"<{self.operating_margin_ttm}>" + '\n' + f"<{self.return_on_assets_ttm}>" + '\n' + f"<{self.return_on_equity_ttm}>" + '\n' + f"<{self.revenue_ttm}>" + '\n' + f"<{self.gross_profit_ttm}>" + '\n' + f"<{self.quarterly_earnings_growth_yoy}>" + '\n' + f"<{self.quarterly_revenue_growth_yoy}>" + '\n' + f"<{self.week_52_high}>" + '\n' + f"<{self.week_52_low}>" + '\n' + f"<{self.timestamp}>")
     
 class TimeSeriesDailyData(db.Model):
     symbol = db.Column(db.String(10), primary_key=True)
@@ -426,8 +430,8 @@ def is_data_up_to_date(symbol, table):
     finally:
         session.close()
     
-# Function to fetch and store stock data and time series data
-def fetch_and_store_stock_data(symbol):
+# Function to fetch and store company overview and financial metrics data
+def fetch_and_store_company_overview_data(symbol):
     # Ensure that this function is always called within an application context
     with current_app.app_context():
         # Check if overview data is up-to-date,
@@ -441,6 +445,10 @@ def fetch_and_store_stock_data(symbol):
         else:
             print(f"Using existing overview data for {symbol}")
 
+# Function to fetch and store daily time series data
+def fetch_and_store_time_series_daily_data(symbol):
+    # Ensure that this function is always called within an application context
+    with current_app.app_context():
         # Check if daily time series data is up-to-date,
         # API call will only be done if the data has not been updated within the same day
         if not is_data_up_to_date(symbol, TimeSeriesDailyData):
@@ -448,9 +456,26 @@ def fetch_and_store_stock_data(symbol):
             update_table_entry_ts(symbol, data_ts)
         else:
             print(f"Using existing time series data {symbol}")
-            
+
+# Function to fetch and store intraday time series data
+def fetch_and_store_time_series_intraday_data(symbol):
+    # Ensure that this function is always called within an application context
+    with current_app.app_context():
         # Available asynchronously, no checking to see when it was last updated.
         data_intraday, _ = get_intraday_time_series_data(symbol)
         update_table_entry_intraday(symbol, data_intraday)
+
+# Function to fetch and store stock data and time series data
+def fetch_and_store_stock_data(symbol):
+    # Ensure that this function is always called within an application context
+    with current_app.app_context():
+        # Fetch and update overview data
+        fetch_and_store_company_overview_data(symbol)
+
+        # Fetch and update time series daily data
+        fetch_and_store_time_series_daily_data(symbol)
+        
+        # Fetch and update time series intraday data
+        fetch_and_store_time_series_intraday_data(symbol)
         
         

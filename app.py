@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 from extensions import db, create_session
 from getData import fetch_and_store_stock_data
+from databaseRetrieval import get_company_overview, get_financial_metrics, get_daily_time_series, get_intraday_time_series
 
 app = Flask(__name__)
 
@@ -22,6 +23,7 @@ def fetch_data(symbol):
     try:
         # Call the function from getData.py with the symbol from the URL
         fetch_and_store_stock_data(symbol)
+        print(get_financial_metrics(symbol))
         return jsonify({"status": "success", "message": f"Data for {symbol} has been updated"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
