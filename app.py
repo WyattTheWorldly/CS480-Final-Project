@@ -22,9 +22,23 @@ with app.app_context():
 def fetch_data(symbol):
     try:
         # Call the function from getData.py with the symbol from the URL
-        fetch_and_store_stock_data(symbol)
-        print(get_financial_metrics(symbol))
-        return jsonify({"status": "success", "message": f"Data for {symbol} has been updated"}), 200
+        overview = get_company_overview(symbol)
+        return jsonify(
+            {
+                "status": "success", 
+                "symbol"          : overview.symbol,
+                "name"            : overview.name,
+                "asset_type"      : overview.asset_type,
+                "description"     : overview.description,
+                "exchange"        : overview.exchange,
+                "currency"        : overview.currency,
+                "country"         : overview.country,
+                "sector"          : overview.sector,
+                "industry"        : overview.industry,
+                "fiscal_year_end" : overview.fiscal_year_end,
+                "latest_quarter"  : overview.latest_quarter,
+                "timestamp"       : overview.timestamp,
+            }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
