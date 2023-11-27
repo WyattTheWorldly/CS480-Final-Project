@@ -1,28 +1,75 @@
-{% extends 'base.html' %}
 
-{% block title %} Stocks {% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script
+            type="text/javascript"
+            src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"
+    ></script>
+</head>
+<body>
 
-{% block content %}
-<div class="button-container">
-    <a href="{{ url_for('fetch_data', symbol='AAPL') }}" class="btn btn-primary">Apple</a>
-    <a href="{{ url_for('fetch_data', symbol='MSFT') }}" class="btn btn-primary">Microsoft</a>
-    <a href="{{ url_for('fetch_data', symbol='AMZN') }}" class="btn btn-primary">Amazon</a>
-    <a href="{{ url_for('fetch_data', symbol='NVDA') }}" class="btn btn-primary">NVIDIA</a>
-    <a href="{{ url_for('fetch_data', symbol='GOOGL') }}" class="btn btn-primary">Alphabet Class A</a>
-    <a href="{{ url_for('fetch_data', symbol='TSLA') }}" class="btn btn-primary">Tesla</a>
-    <a href="{{ url_for('fetch_data', symbol='META') }}" class="btn btn-primary">Meta Platforms Class A</a>
-    <a href="{{ url_for('fetch_data', symbol='GOOG') }}" class="btn btn-primary">Alphabet Class C</a>
-    <a href="{{ url_for('fetch_data', symbol='BRK-A') }}" class="btn btn-primary">Berkshire Hathaway</a>
-    <a href="{{ url_for('fetch_data', symbol='UNH') }}" class="btn btn-primary">UnitedHealth Group</a>
-    <a href="{{ url_for('fetch_data', symbol='XOM') }}" class="btn btn-primary">Exxon Mobil </a>
-    <a href="{{ url_for('fetch_data', symbol='LLY') }}" class="btn btn-primary">Eli Lilly</a>
-    <a href="{{ url_for('fetch_data', symbol='JPM') }}" class="btn btn-primary">JPMorgan Chase</a>
-    <a href="{{ url_for('fetch_data', symbol='JNJ') }}" class="btn btn-primary">Johnson &amp; Johnson</a>
-    <a href="{{ url_for('fetch_data', symbol='V') }}" class="btn btn-primary">Visa Class A</a>
-    <a href="{{ url_for('fetch_data', symbol='PG') }}" class="btn btn-primary">Procter &amp; Gamble</a>
-    <a href="{{ url_for('fetch_data', symbol='MA') }}" class="btn btn-primary">Mastercard Class A</a>
-    <a href="{{ url_for('fetch_data', symbol='AVGO') }}" class="btn btn-primary">Broadcom</a>
-    <a href="{{ url_for('fetch_data', symbol='HD') }}" class="btn btn-primary">Home Depot</a>
-    <a href="{{ url_for('fetch_data', symbol='CVX') }}" class="btn btn-primary">Chevron Corporation</a>
-</div>
-{% endblock %}
+    <div id="side-menu">
+        <button class="stock-button" onclick="loadAllDataSeries('AAPL')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/apple.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">APPL</div>
+                <div class="line2">Apple Inc.</div>
+            </div>
+        </button>
+        <button class="stock-button" onclick="loadAllDataSeries('TSLA')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/tesla.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">TSLA</div>
+                <div class="line2">Tesla, Inc.</div>
+            </div>
+        </button>
+        <button class="stock-button" onclick="loadAllDataSeries('GOOG')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/microsoft.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">GOOG</div>
+                <div class="line2">Alphabet Inc Class C</div>
+            </div>
+        </button>
+        <button class="stock-button" onclick="loadAllDataSeries('AMZN')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/amazon.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">AMZN</div>
+                <div class="line2">Amazon.com, Inc.</div>
+            </div>
+        </button>
+        <button class="stock-button" onclick="loadAllDataSeries('NVDA')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/nvidia.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">NVDA</div>
+                <div class="line2">NVIDIA Corporation</div>
+            </div>
+        </button>
+        <button class="stock-button"  onclick="loadAllDataSeries('GOOGL')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/google.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">GOOGL</div>
+                <div class="line2">Alphabet Inc Class A</div>
+            </div>
+        </button>
+        <button class="stock-button" onclick="loadAllDataSeries('META')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/meta.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">META</div>
+                <div class="line2">Meta Platforms, Inc.</div>
+            </div>
+        </button>
+
+    </div>
+
+    <div id="tv_chart_container" style="width: 800px; height: 400px;"></div>
+    <script src="../static/js/script.js"></script>
+</body>
+</html>
