@@ -83,7 +83,7 @@ class TimeSeriesDailyData(db.Model):
     close_price = db.Column(db.Float)
     volume      = db.Column(db.Float)
     timestamp   = db.Column(db.DateTime)
-    
+
 class TimeSeriesIntraDayData(db.Model):
     symbol      = db.Column(db.String(10), primary_key=True)
     datetime    = db.Column(db.DateTime, primary_key=True)

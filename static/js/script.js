@@ -16,15 +16,22 @@ let monthData = [];
 // This function should be called once for when stock button is clicked
 // to load data into the global arrays.
 
-
 function loadAllDataSeries(symbol = "IBM"){
     fetchData(symbol);//default is TIME_SERIES_DAILY
     fetchData(symbol, "TIME_SERIES_WEEKLY");
     fetchData(symbol, "TIME_SERIES_MONTHLY");
     updateChart(dayData);
 }
+
 // switch demo api key to real ones after testing is done
 function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
+
+    $.post('/stock_data', {
+        symbol: symbol,
+        functionTable: functionTable
+    });
+
+    //fetching data from API - Demo Key: E9HF2DALRYZKAIJC
     fetch(`https://www.alphavantage.co/query?function=${functionTable}&symbol=${symbol}&apikey=E9HF2DALRYZKAIJC`)
         .then(response => {
             if (!response.ok) {

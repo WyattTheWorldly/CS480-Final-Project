@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
 from getData import fetch_and_store_stock_data
 from databaseRetrieval import get_company_overview, get_financial_metrics, get_daily_time_series, get_intraday_time_series
@@ -45,15 +45,23 @@ def fetch_data(symbol):
 
 # Renders the stock_views page, the <stockv> is the stock name to render
 # Refer to base.html for examples of use in navbar
-@app.route('/stock_view/<stockv>')
-def stock_view(stockv):
-    if stockv == 'AAPL':
-        return render_template('APPL.html', stockv=stockv)
-    elif stockv == 'AMZN':
-        return render_template('AMZN.html', stockv=stockv)
-    else:
-        return render_template('index.html', stockv=stockv)
 
+@app.route("/stock_data", methods = ['POST'])
+def stock_data():
+    @after_this_request
+    def add_header(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    symbol = request.form['symbol']
+    functiontable = request.form['functionTable']
+
+    # Logging to console because I dont want to suffer too much debugging
+    print(symbol)
+    print(functiontable)
+
+    # Fetch and return the data
+    return jsonify(get_daily_time_series(symbol))
 
 @app.route('/')
 def index():
