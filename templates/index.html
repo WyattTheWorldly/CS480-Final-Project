@@ -6,7 +6,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Homepage</title>
+    <title>Homepage {% block title %}{% endblock %} </title>
     <link rel="stylesheet" href="../static/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script
@@ -17,6 +17,8 @@
 <body>
 
     <div id="side-menu">
+        <h1 class="logo">Commerce Insight</h1>
+        <!-- Apple -->
         <button class="stock-button" onclick="loadAllDataSeries('AAPL')">
             <img class = "stock-icon" src="https://logo.clearbit.com/apple.com" alt="Loading...">
             <div class="button-text">
@@ -24,6 +26,7 @@
                 <div class="line2">Apple Inc.</div>
             </div>
         </button>
+        <!-- Tesla -->
         <button class="stock-button" onclick="loadAllDataSeries('TSLA')">
             <img class = "stock-icon" src="https://logo.clearbit.com/tesla.com" alt="Loading...">
             <div class="button-text">
@@ -31,6 +34,7 @@
                 <div class="line2">Tesla, Inc.</div>
             </div>
         </button>
+        <!-- Alphabet Inc Class C -->
         <button class="stock-button" onclick="loadAllDataSeries('GOOG')">
             <img class = "stock-icon" src="https://logo.clearbit.com/microsoft.com" alt="Loading...">
             <div class="button-text">
@@ -38,6 +42,7 @@
                 <div class="line2">Alphabet Inc Class C</div>
             </div>
         </button>
+        <!-- Amazon -->
         <button class="stock-button" onclick="loadAllDataSeries('AMZN')">
             <img class = "stock-icon" src="https://logo.clearbit.com/amazon.com" alt="Loading...">
             <div class="button-text">
@@ -45,6 +50,7 @@
                 <div class="line2">Amazon.com, Inc.</div>
             </div>
         </button>
+        <!-- Nvidia -->
         <button class="stock-button" onclick="loadAllDataSeries('NVDA')">
             <img class = "stock-icon" src="https://logo.clearbit.com/nvidia.com" alt="Loading...">
             <div class="button-text">
@@ -52,6 +58,7 @@
                 <div class="line2">NVIDIA Corporation</div>
             </div>
         </button>
+        <!-- Alphabet Inc Class A -->
         <button class="stock-button"  onclick="loadAllDataSeries('GOOGL')">
             <img class = "stock-icon" src="https://logo.clearbit.com/google.com" alt="Loading...">
             <div class="button-text">
@@ -59,6 +66,7 @@
                 <div class="line2">Alphabet Inc Class A</div>
             </div>
         </button>
+        <!-- Meta Platforms Inc -->
         <button class="stock-button" onclick="loadAllDataSeries('META')">
             <img class = "stock-icon" src="https://logo.clearbit.com/meta.com" alt="Loading...">
             <div class="button-text">
@@ -66,10 +74,114 @@
                 <div class="line2">Meta Platforms, Inc.</div>
             </div>
         </button>
-
+        <!-- Broad.com Inc -->
+        <button class="stock-button" onclick="loadAllDataSeries('BRD')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/broad.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">BRD</div>
+                <div class="line2">Broad.com, Inc.</div>
+            </div>
+        </button>
+        <!-- Berkshire Hathaway Inc -->
+        <button class="stock-button" onclick="loadAllDataSeries('BRK')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/bhhs.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">BRK</div>
+                <div class="line2">Berkshire Hathaway Inc</div>
+            </div>
+        </button>
+        <!-- Chevron Corporation -->
+        <button class="stock-button" onclick="loadAllDataSeries('CVX')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/chevron.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">CVX</div>
+                <div class="line2">Chevron Corporation</div>
+            </div>
+        </button>
+        <!-- Home Depot Inc -->
+        <button class="stock-button" onclick="loadAllDataSeries('HD')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/homedepot.ca" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">HD</div>
+                <div class="line2">Home Depot Inc</div>
+            </div>
+        </button>
+        <!-- Johnson & Johnson -->
+        <button class="stock-button" onclick="loadAllDataSeries('JNJ')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/jnj.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">JNJ</div>
+                <div class="line2">Johnson & Johnson</div>
+            </div>
+        </button>
+        <!-- JPMorgan Chase & Co. -->
+        <button class="stock-button" onclick="loadAllDataSeries('JPM')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/jpmorganchase.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">JPM</div>
+                <div class="line2">JPMorgan Chase & Co.</div>
+            </div>
+        </button>
+        <!-- Eli Lilly and Company -->
+        <button class="stock-button" onclick="loadAllDataSeries('LLY')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/lilly.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">LLY</div>
+                <div class="line2">Eli Lilly and Company</div>
+            </div>
+        </button>
+        <!-- Mastercard Incorporated -->
+        <button class="stock-button" onclick="loadAllDataSeries('MA')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/mastercard.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">MA</div>
+                <div class="line2">Mastercard Incorporated</div>
+            </div>
+        </button>
+        <!-- Microsoft Corporation -->
+        <button class="stock-button" onclick="loadAllDataSeries('MSFT')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/microsoft.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">MSFT</div>
+                <div class="line2">Microsoft Corporation</div>
+            </div>
+        </button>
+        <!-- Procter & Gamble Company -->
+        <button class="stock-button" onclick="loadAllDataSeries('PG')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/pg.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">PG</div>
+                <div class="line2">Procter & Gamble Company</div>
+            </div>
+        </button>
+        <!-- UnitedHealth Group Incorporated -->
+        <button class="stock-button" onclick="loadAllDataSeries('UNH')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/unitedhealthgroup.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">UNH</div>
+                <div class="line2">UnitedHealth Group Incorporated</div>
+            </div>
+        </button>
+        <!-- Visa Inc -->
+        <button class="stock-button" onclick="loadAllDataSeries('V')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/visa.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">V</div>
+                <div class="line2">Visa Inc</div>
+            </div>
+        </button>
+        <!-- Exxon Mobil Corporation -->
+        <button class="stock-button" onclick="loadAllDataSeries('XOM')">
+            <img class = "stock-icon" src="https://logo.clearbit.com/exxonmobil.com" alt="Loading...">
+            <div class="button-text">
+                <div class="line1">XOM</div>
+                <div class="line2">Exxon Mobil Corporation</div>
+            </div>
+        </button>
     </div>
-
-    <div id="tv_chart_container" style="width: 800px; height: 400px;"></div>
-    <script src="../static/js/script.js"></script>
+    <div class="content">
+        <div id="tv_chart_container" style="width: 800px; height: 400px;"></div>
+        <script src="../static/js/script.js"></script>
+    </div>
 </body>
 </html>
