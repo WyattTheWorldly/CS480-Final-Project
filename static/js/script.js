@@ -4,8 +4,6 @@ const chart = LightweightCharts.createChart(chartElement, {
         timeVisible: false,
         secondsVisible: false,
     },
-    maxHeight: 800,
-    maxWidth: 1400,
 });
 let candleSeries = null
 
@@ -16,15 +14,57 @@ let monthData = [];
 // This function should be called once for when stock button is clicked
 // to load data into the global arrays.
 
-function loadAllDataSeries(symbol = "IBM"){
-    fetchData(symbol);//default is TIME_SERIES_DAILY
-    fetchData(symbol, "TIME_SERIES_WEEKLY");
-    fetchData(symbol, "TIME_SERIES_MONTHLY");
-    updateChart(dayData);
+function loadAllDataSeries(symbol = "AAPL"){
+
+    updateOverview(symbol);
+    updateMetrics(symbol);
+    // fetchData(symbol);//default is TIME_SERIES_DAILY
+    // fetchData(symbol, "TIME_SERIES_WEEKLY");
+    // fetchData(symbol, "TIME_SERIES_MONTHLY");
 }
 
-// switch demo api key to real ones after testing is done
-function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
+function updateOverview(symbol = "AAPL"){
+    fetch(`/fetch_data/${symbol}`)
+        .then(response => {
+            if (!response.ok) {
+                console.log('Error attempting to connect');
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('asset-type').innerText = data.asset_type;
+            document.getElementById('exchange').innerText = data.exchange;
+            document.getElementById('currency').innerText = data.currency;
+            document.getElementById('country').innerText = data.country;
+            document.getElementById('sector').innerText = data.sector;
+            document.getElementById('industry').innerText = data.industry;
+        })
+        .catch(error => {
+            // Handle errors during the fetch request
+            console.error('There was a problem with the fetch operation:', error);
+        });
+}
+
+function updateMetrics(symbol = "AAPL"){
+    fetch(`/fetch_metric/${symbol}`)
+        .then(response => {
+            if (!response.ok) {
+                console.log('Error attempting to connect');
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            // Handle errors during the fetch request
+            console.error('There was a problem with the fetch operation:', error);
+        });
+}
+
+function fetchData(symbol = "AAPL", functionTable = "TIME_SERIES_DAILY") {
     const url = 'http://127.0.0.1:5000/stock_data'
     let data = {
         "symbol": symbol,
@@ -119,13 +159,9 @@ function updateChart(data) {
 document.addEventListener('DOMContentLoaded', function () {
 });
 
-/*
-TESTING CODE
- */
 
 function createSimpleSwitcher(items, activeItem, activeItemChangedCallback) {
-    let switcherElement = document.createElement('div');
-    switcherElement.classList.add('switcher');
+    let switcherElement = document.getElementById('switch');
 
     let intervalElements = items.map(function(item) {
         let itemEl = document.createElement('button');
@@ -158,9 +194,7 @@ function createSimpleSwitcher(items, activeItem, activeItemChangedCallback) {
 
 let intervals = ['1D', '1W', '1M'];
 
-
 let switcherElement = createSimpleSwitcher(intervals, intervals[0], syncToInterval);
-document.body.appendChild(switcherElement);
 
 //Set the data for chart to the correct interval
 function syncToInterval(interval) {

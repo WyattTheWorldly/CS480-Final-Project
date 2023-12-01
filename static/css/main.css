@@ -1,17 +1,15 @@
 :root {
     --primary-color: #f0f3fb;
+
 }
 
 
 body{
+    font-family:-apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: row;
-}
-
-.content {
-    margin-left: 250px;
 }
 
 #side-menu{
@@ -20,11 +18,13 @@ body{
     flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
-    margin: 10px;
-    padding: 0;
+    margin: 0;
+    padding: 8px;
     width: 200px;
     overflow-y: scroll;
     height: 100%;
+    z-index: 999;
+    background-color: white;
 }
 
 .logo {
@@ -43,6 +43,7 @@ body{
     min-height: 60px;
     min-width: 150px;
 
+    margin-top: 8px;
     border-radius: 8px;
     cursor: pointer;
     border: var(--primary-color) solid 1px;
@@ -131,4 +132,49 @@ Trying new code for switcher
 #tv_chart_container{
     display: flex;
     align-items: center;
+    width: calc(100vw - 315px);
+    height: 400px;
+    margin: 50px 50px 0 0;
 }
+
+.content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin-left: 250px;
+}
+
+.info-container{
+    width: calc(100vw - 300px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+    gap: 25px;
+}
+
+#switch{
+    margin-bottom: 50px;
+}
+
+.piece-of-info{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-line2{
+    color: rgb(128, 128, 128);
+    font-size: 14px;
+}
+.info-line1{
+    font-size: 18px;
+}
+
+.section-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
