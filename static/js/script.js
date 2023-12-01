@@ -50,18 +50,18 @@ function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
             let transformedData;
             switch (functionTable){
                 case "TIME_SERIES_DAILY":
-                    transformedData = transformData(data, "Time Series (Daily)").reverse();
                     console.log('Table: TIME_SERIES_DAILY')
+                    transformedData = transformData(data, "Time Series (Daily)").reverse();
                     dayData = [].concat(transformedData);
                     break;
                 case "TIME_SERIES_WEEKLY":
-                    transformedData = transformData(data, "Weekly Time Series").reverse();
                     console.log('Table: TIME_SERIES_WEEKLY')
+                    transformedData = transformData(data, "Weekly Time Series").reverse();
                     weekData = [].concat(transformedData);
                     break;
                 case "TIME_SERIES_MONTHLY":
-                    transformedData = transformData(data, "Monthly Time Series").reverse();
                     console.log('Table: TIME_SERIES_MONTHLY')
+                    transformedData = transformData(data, "Monthly Time Series").reverse();
                     monthData = [].concat(transformedData);
                     break;
                 default:
@@ -78,19 +78,19 @@ function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
 
 //transforming data so it can be used by the chart
 function transformData(jsonData, timeSeriesKey) {
+    //console.log(jsonData)
     const weeklyData = jsonData[timeSeriesKey];
     const transformedData = [];
-
     console.log('Attempting to parse data')
     for (const date in weeklyData) {
         if (weeklyData.hasOwnProperty(date)) {
             const entry = weeklyData[date];
             const transformedEntry = {
                 time: date,
-                open: parseFloat(entry["1. open"]),
-                high: parseFloat(entry["2. high"]),
-                low: parseFloat(entry["3. low"]),
-                close: parseFloat(entry["4. close"]),
+                open: parseFloat(entry["open"]),
+                high: parseFloat(entry["high_price"]),
+                low: parseFloat(entry["low_price"]),
+                close: parseFloat(entry["close_price"]),
             };
             transformedData.push(transformedEntry);
         }
@@ -98,6 +98,7 @@ function transformData(jsonData, timeSeriesKey) {
 
     return transformedData;
 }
+
 
 //this can be deleted, simply random data not needed
 function updateChart(data) {
