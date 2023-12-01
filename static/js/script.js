@@ -25,16 +25,23 @@ function loadAllDataSeries(symbol = "IBM"){
 
 // switch demo api key to real ones after testing is done
 function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
-
-    $.post('/stock_data', {
-        symbol: symbol,
-        functionTable: functionTable
-    });
-
-    //fetching data from API - Demo Key: E9HF2DALRYZKAIJC
-    fetch(`https://www.alphavantage.co/query?function=${functionTable}&symbol=${symbol}&apikey=E9HF2DALRYZKAIJC`)
+    const url = 'http://127.0.0.1:5000/stock_data'
+    let data = {
+        "symbol": symbol,
+        "function": functionTable
+    }
+    //fetching data from API
+    fetch(url,
+        {
+            "method": 'POST',
+            "headers": {
+                'Content-Type': 'application/json'
+            },
+            "body": JSON.stringify(data),
+        })
         .then(response => {
             if (!response.ok) {
+                console.log('Error attempting to connect');
                 throw new Error('Network response was not ok');
             }
             return response.json();
@@ -44,14 +51,17 @@ function fetchData(symbol = "IBM", functionTable = "TIME_SERIES_DAILY") {
             switch (functionTable){
                 case "TIME_SERIES_DAILY":
                     transformedData = transformData(data, "Time Series (Daily)").reverse();
+                    console.log('Table: TIME_SERIES_DAILY')
                     dayData = [].concat(transformedData);
                     break;
                 case "TIME_SERIES_WEEKLY":
                     transformedData = transformData(data, "Weekly Time Series").reverse();
+                    console.log('Table: TIME_SERIES_WEEKLY')
                     weekData = [].concat(transformedData);
                     break;
                 case "TIME_SERIES_MONTHLY":
                     transformedData = transformData(data, "Monthly Time Series").reverse();
+                    console.log('Table: TIME_SERIES_MONTHLY')
                     monthData = [].concat(transformedData);
                     break;
                 default:
@@ -71,6 +81,7 @@ function transformData(jsonData, timeSeriesKey) {
     const weeklyData = jsonData[timeSeriesKey];
     const transformedData = [];
 
+    console.log('Attempting to parse data')
     for (const date in weeklyData) {
         if (weeklyData.hasOwnProperty(date)) {
             const entry = weeklyData[date];

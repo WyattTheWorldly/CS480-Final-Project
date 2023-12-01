@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
 from getData import fetch_and_store_stock_data
@@ -42,10 +44,8 @@ def fetch_data(symbol):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
-# Renders the stock_views page, the <stockv> is the stock name to render
-# Refer to base.html for examples of use in navbar
-
+# Listen for POST requests to the /stock_data route
+# Primarily for use in JS file for graph views
 @app.route("/stock_data", methods = ['POST'])
 def stock_data():
     @after_this_request
@@ -53,15 +53,22 @@ def stock_data():
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
-    symbol = request.form['symbol']
-    functiontable = request.form['functionTable']
+    # Get the symbol & functionTable from the POST request
+    postData = request.get_json()
+    symbol = postData['symbol']
+    functionTable = postData['function']
 
-    # Logging to console because I dont want to suffer too much debugging
-    print(symbol)
-    print(functiontable)
+    # This is called reverse engeneering at its worst
+    daily_time_series = get_daily_time_series(symbol)
+    #Converts the data into dictionary format
+    daily_time_series = [d.__dict__ for d in daily_time_series]
+    #Drops symbol and _sa_instance_state
+    for d in daily_time_series:
+        d.pop('symbol', None)
+        d.pop('_sa_instance_state', None)
 
-    # Fetch and return the data
-    return jsonify(get_daily_time_series(symbol))
+    # Fetch and return the data as JSON
+    return jsonify(daily_time_series), 200
 
 @app.route('/')
 def index():
