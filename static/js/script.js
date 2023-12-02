@@ -18,7 +18,7 @@ function loadAllDataSeries(symbol = "AAPL"){
 
     updateOverview(symbol);
     updateMetrics(symbol);
-    // fetchData(symbol);//default is TIME_SERIES_DAILY
+    fetchData(symbol);//default is TIME_SERIES_DAILY
     // fetchData(symbol, "TIME_SERIES_WEEKLY");
     // fetchData(symbol, "TIME_SERIES_MONTHLY");
 }

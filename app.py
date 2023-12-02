@@ -1,8 +1,7 @@
 import json
-
 from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
-from getData import fetch_and_store_stock_data
+from getData import fetch_and_store_time_series_daily_data
 from databaseRetrieval import get_company_overview, get_daily_time_series, get_intraday_time_series
 
 app = Flask(__name__)
@@ -98,6 +97,11 @@ def fetch_metric(symbol):
             }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/fetch_daily_time_series/<symbol>')
+def fetch_daily_time_series(symbol):
+    fetch_and_store_time_series_daily_data(symbol)
+
 
 @app.route('/')
 def index():
