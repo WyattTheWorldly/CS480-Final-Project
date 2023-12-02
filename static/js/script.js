@@ -17,8 +17,7 @@ let monthData = [];
 function loadAllDataSeries(symbol = "AAPL"){
 
     updateOverview(symbol);
-    updateMetrics(symbol);
-    fetchData(symbol);//default is TIME_SERIES_DAILY
+    // fetchData(symbol);//default is TIME_SERIES_DAILY
     // fetchData(symbol, "TIME_SERIES_WEEKLY");
     // fetchData(symbol, "TIME_SERIES_MONTHLY");
 }
@@ -33,30 +32,33 @@ function updateOverview(symbol = "AAPL"){
             return response.json();
         })
         .then(data => {
+            console.log(data);
+            document.getElementById('description').innerText = data.description;
             document.getElementById('asset-type').innerText = data.asset_type;
             document.getElementById('exchange').innerText = data.exchange;
             document.getElementById('currency').innerText = data.currency;
             document.getElementById('country').innerText = data.country;
             document.getElementById('sector').innerText = data.sector;
             document.getElementById('industry').innerText = data.industry;
-        })
-        .catch(error => {
-            // Handle errors during the fetch request
-            console.error('There was a problem with the fetch operation:', error);
-        });
-}
-
-function updateMetrics(symbol = "AAPL"){
-    fetch(`/fetch_metric/${symbol}`)
-        .then(response => {
-            if (!response.ok) {
-                console.log('Error attempting to connect');
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data);
+            document.getElementById('stock-title').innerText = data.name;
+            document.getElementById('eps').innerText = data.earnings_per_share;
+            document.getElementById('ebitda').innerText = data.ebitda;
+            document.getElementById('fye').innerText = data.fiscal_year_end;
+            document.getElementById('gpttm').innerText = data.gross_profit_ttm;
+            document.getElementById('latest-quart').innerText = data.latest_quarter;
+            document.getElementById('market-cap').innerText = data.market_capitalization;
+            document.getElementById('op-mar-ttm').innerText = data.operating_margin_ttm;
+            document.getElementById('pe-ratio').innerText = data.pe_ratio;
+            document.getElementById('peg-ratio').innerText = data.peg_ratio;
+            document.getElementById('profit-margin').innerText = data.profit_margin;
+            document.getElementById('qegyoy').innerText = data.quarterly_earnings_growth_yoy;
+            document.getElementById('qrgyoy').innerText = data.quarterly_revenue_growth_yoy;
+            document.getElementById('roa-ttm').innerText = data.return_on_assets_ttm;
+            document.getElementById('roq-ttm').innerText = data.return_on_equity_ttm;
+            document.getElementById('rps-ttm').innerText = data.revenue_per_share_ttm;
+            document.getElementById('revenue-ttm').innerText = data.revenue_ttm;
+            document.getElementById('52-wh').innerText = data.week_52_high;
+            document.getElementById('52-wl').innerText = data.week_52_low;
         })
         .catch(error => {
             // Handle errors during the fetch request

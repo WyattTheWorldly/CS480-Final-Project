@@ -42,6 +42,7 @@ def fetch_data(symbol):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 # Listen for POST requests to the /stock_data route
 # Primarily for use in JS file for graph views
 @app.route("/stock_data", methods = ['POST'])
@@ -68,35 +69,6 @@ def stock_data():
     # Fetch and return the data as JSON
     return jsonify(daily_time_series), 200
 
-@app.route('/fetch_metric/<symbol>')
-def fetch_metric(symbol):
-    try:
-        # Call the function from getData.py with the symbol from the URL
-        metrics = get_company_overview(symbol)
-        print(metrics)
-        return jsonify(
-            {
-                "symbol" : metrics.symbol,
-                "market_capitalization" : metrics.market_capitalization,
-                "ebitda" : metrics.ebitda,
-                "pe_ratio" : metrics.pe_ratio,
-                "peg_ratio" : metrics.peg_ratio,
-                "earnings_per_share" : metrics.earnings_per_share,
-                "revenue_per_share_ttm" : metrics.revenue_per_share_ttm,
-                "profit_margin" : metrics.profit_margin,
-                "operating_margin_ttm" : metrics.operating_margin_ttm,
-                "return_on_assets_ttm" : metrics.return_on_assets_ttm,
-                "return_on_equity_ttm" : metrics.return_on_equity_ttm,
-                "revenue_ttm" : metrics.revenue_ttm,
-                "gross_profit_ttm" : metrics.gross_profit_ttm,
-                "quarterly_earnings_growth_yoy" : metrics.quarterly_earnings_growth_yoy,
-                "quarterly_revenue_growth_yoy" : metrics.quarterly_revenue_growth_yoy,
-                "week_52_high" : metrics.week_52_high,
-                "week_52_low" : metrics.week_52_low,
-                "timestamp" : metrics.timestamp,
-            }), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/fetch_daily_time_series/<symbol>')
 def fetch_daily_time_series(symbol):
