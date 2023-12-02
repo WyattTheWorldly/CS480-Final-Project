@@ -38,22 +38,6 @@ def fetch_data(symbol):
                 "industry"                      : overview.industry,
                 "fiscal_year_end"               : overview.fiscal_year_end,
                 "latest_quarter"                : overview.latest_quarter,
-                "market_capitalization"         : overview.market_capitalization,
-                "ebitda"                        : overview.ebitda,
-                "pe_ratio"                      : overview.pe_ratio,
-                "peg_ratio"                     : overview.peg_ratio,
-                "earnings_per_share"            : overview.earnings_per_share,
-                "revenue_per_share_ttm"         : overview.revenue_per_share_ttm,
-                "profit_margin"                 : overview.profit_margin,
-                "operating_margin_ttm"          : overview.operating_margin_ttm,
-                "return_on_assets_ttm"          : overview.return_on_assets_ttm,
-                "return_on_equity_ttm"          : overview.return_on_equity_ttm,
-                "revenue_ttm"                   : overview.revenue_ttm,
-                "gross_profit_ttm"              : overview.gross_profit_ttm,
-                "quarterly_earnings_growth_yoy" : overview.quarterly_earnings_growth_yoy,
-                "quarterly_revenue_growth_yoy"  : overview.quarterly_revenue_growth_yoy,
-                "week_52_high"                  : overview.week_52_high,
-                "week_52_low"                   : overview.week_52_low,
                 "timestamp"                     : overview.timestamp,
             }), 200
     except Exception as e:
@@ -89,7 +73,7 @@ def stock_data():
 def fetch_metric(symbol):
     try:
         # Call the function from getData.py with the symbol from the URL
-        metrics = get_financial_metrics(symbol)
+        metrics = get_company_overview(symbol)
         print(metrics)
         return jsonify(
             {
@@ -118,7 +102,6 @@ def fetch_metric(symbol):
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
