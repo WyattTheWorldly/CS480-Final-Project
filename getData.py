@@ -1,6 +1,6 @@
 from alpha_vantage.fundamentaldata import FundamentalData
 from alpha_vantage.timeseries import TimeSeries
-from datetime import datetime, timedelta
+import datetime
 from extensions import db, create_session
 import pandas as pd
 from flask import current_app
@@ -26,54 +26,107 @@ def track_api_call():
         print("Warning: Only 5 API calls remaining.")
         
 # Function that validates the field value against the expected data type.
-# Returns None if the value is NaN or not of the expected type.
+# Returns None if the value is NaN
+# Converts value to expected type if it isn't already.
 def validate_field(value, expected_type):
+    # Handle null values
     if pd.isnull(value):
         return None
-    elif isinstance(value, expected_type):
+
+    # If the value is already of the expected type, return it as-is
+    if isinstance(value, expected_type):
         return value
-    else:
-        return None
+
+    # Ensure expected_type is a tuple for consistency in processing
+    if not isinstance(expected_type, tuple):
+        expected_type = (expected_type,)
+
+    # Conversion for string values
+    if isinstance(value, str):
+        # Handling conversion to numeric types (int or float)
+        if int in expected_type or float in expected_type:
+            try:
+                # Try converting to int first
+                return int(value)
+            except ValueError:
+                try:
+                    # If int conversion fails, try converting to float
+                    return float(value)
+                except ValueError:
+                    pass
+
+        # Handling conversion to datetime types
+        elif datetime.datetime in expected_type or datetime.date in expected_type:
+            try:
+                return datetime.datetime.strptime(value, '%Y-%m-%d')
+            except ValueError:
+                pass
+
+    # Conversion for numeric values to string
+    elif isinstance(value, (int, float)) and str in expected_type:
+        return str(value)
+
+    # Conversion from datetime.date to datetime.datetime
+    elif isinstance(value, datetime.date) and datetime.datetime in expected_type:
+        return datetime.datetime.combine(value, datetime.time())
+
+    # If conversion is not successful or not applicable, print error and return None
+    print(f"Type mismatch or conversion error. Value: {value}, Expected Type: {expected_type}")
+    return None
+
+
 
 # Defining tables for database
-class CompanyInformation(db.Model):
-    symbol          = db.Column(db.String(10), unique=True, primary_key=True)
-    name            = db.Column(db.String(100))  
-    asset_type      = db.Column(db.String(50))
-    description     = db.Column(db.String(1000))
-    exchange        = db.Column(db.String(10))
-    currency        = db.Column(db.String(10))
-    country         = db.Column(db.String(50)) 
-    sector          = db.Column(db.String(50))  
-    industry        = db.Column(db.String(100))  
-    fiscal_year_end = db.Column(db.String(20))  
-    latest_quarter  = db.Column(db.String(20))  
-    timestamp       = db.Column(db.DateTime)
-    def __str__(self):
-        return str(f"<{self.symbol}>" + '\n' + f"<{self.name}>" + '\n' + f"<{self.asset_type}>" + '\n' + f"<{self.description}>" + '\n' + f"<{self.exchange}>" + '\n' + f"<{self.currency}>" + '\n' + f"<{self.country}>" + '\n' + f"<{self.sector}>" + '\n' + f"<{self.industry}>" + '\n' + f"<{self.fiscal_year_end}>" + '\n' + f"<{self.latest_quarter}>" + '\n' + f"<{self.timestamp}>")
-    
-class FinancialMetrics(db.Model):
+class OverviewData(db.Model):
     symbol                          = db.Column(db.String(10), unique=True, primary_key=True)
-    market_capitalization           = db.Column(db.BigInteger)  
-    ebitda                          = db.Column(db.Float)  
-    pe_ratio                        = db.Column(db.Float)  
-    peg_ratio                       = db.Column(db.Float)  
-    earnings_per_share              = db.Column(db.Float)  
-    revenue_per_share_ttm           = db.Column(db.Float)  
-    profit_margin                   = db.Column(db.Float)  
-    operating_margin_ttm            = db.Column(db.Float)  
-    return_on_assets_ttm            = db.Column(db.Float)  
-    return_on_equity_ttm            = db.Column(db.Float)  
-    revenue_ttm                     = db.Column(db.Float)  
-    gross_profit_ttm                = db.Column(db.Float)  
-    quarterly_earnings_growth_yoy   = db.Column(db.Float)  
-    quarterly_revenue_growth_yoy    = db.Column(db.Float)  
-    week_52_high                    = db.Column(db.Float) 
-    week_52_low                     = db.Column(db.Float)  
+    name                            = db.Column(db.String(100))
+    asset_type                      = db.Column(db.String(50))
+    description                     = db.Column(db.String(1000))
+    exchange                        = db.Column(db.String(10))
+    currency                        = db.Column(db.String(10))
+    country                         = db.Column(db.String(50))
+    sector                          = db.Column(db.String(50))
+    industry                        = db.Column(db.String(100))
+    fiscal_year_end                 = db.Column(db.String(20))
+    latest_quarter                  = db.Column(db.DateTime)
+    market_capitalization           = db.Column(db.BigInteger)
+    ebitda                          = db.Column(db.Float)
+    pe_ratio                        = db.Column(db.Float)
+    peg_ratio                       = db.Column(db.Float)
+    earnings_per_share              = db.Column(db.Float)
+    revenue_per_share_ttm           = db.Column(db.Float)
+    profit_margin                   = db.Column(db.Float)
+    operating_margin_ttm            = db.Column(db.Float)
+    return_on_assets_ttm            = db.Column(db.Float)
+    return_on_equity_ttm            = db.Column(db.Float)
+    revenue_ttm                     = db.Column(db.Float)
+    gross_profit_ttm                = db.Column(db.Float)
+    quarterly_earnings_growth_yoy   = db.Column(db.Float)
+    quarterly_revenue_growth_yoy    = db.Column(db.Float)
+    week_52_high                    = db.Column(db.Float)
+    week_52_low                     = db.Column(db.Float)
     timestamp                       = db.Column(db.DateTime)
+
     def __str__(self):
-        return str(f"<{self.symbol}>" + '\n' + f"<{self.market_capitalization}>" + '\n' + f"<{self.ebitda}>" + '\n' + f"<{self.pe_ratio}>" + '\n' + f"<{self.peg_ratio}>" + '\n' + f"<{self.earnings_per_share}>" + '\n' + f"<{self.revenue_per_share_ttm}>" + '\n' + f"<{self.profit_margin}>" + '\n' + f"<{self.operating_margin_ttm}>" + '\n' + f"<{self.return_on_assets_ttm}>" + '\n' + f"<{self.return_on_equity_ttm}>" + '\n' + f"<{self.revenue_ttm}>" + '\n' + f"<{self.gross_profit_ttm}>" + '\n' + f"<{self.quarterly_earnings_growth_yoy}>" + '\n' + f"<{self.quarterly_revenue_growth_yoy}>" + '\n' + f"<{self.week_52_high}>" + '\n' + f"<{self.week_52_low}>" + '\n' + f"<{self.timestamp}>")
-    
+        # Combine the string representations from both original classes
+        return (f"<{self.symbol}>\n<Company Information>\n"
+                f"Name: {self.name}, Asset Type: {self.asset_type}, "
+                f"Description: {self.description}, Exchange: {self.exchange}, "
+                f"Currency: {self.currency}, Country: {self.country}, "
+                f"Sector: {self.sector}, Industry: {self.industry}, "
+                f"Fiscal Year End: {self.fiscal_year_end}, Latest Quarter: {self.latest_quarter}\n"
+                f"<Financial Metrics>\n"
+                f"Market Capitalization: {self.market_capitalization}, EBITDA: {self.ebitda}, "
+                f"PE Ratio: {self.pe_ratio}, PEG Ratio: {self.peg_ratio}, "
+                f"Earnings Per Share: {self.earnings_per_share}, Revenue Per Share TTM: {self.revenue_per_share_ttm}, "
+                f"Profit Margin: {self.profit_margin}, Operating Margin TTM: {self.operating_margin_ttm}, "
+                f"Return on Assets TTM: {self.return_on_assets_ttm}, Return on Equity TTM: {self.return_on_equity_ttm}, "
+                f"Revenue TTM: {self.revenue_ttm}, Gross Profit TTM: {self.gross_profit_ttm}, "
+                f"Quarterly Earnings Growth YoY: {self.quarterly_earnings_growth_yoy}, "
+                f"Quarterly Revenue Growth YoY: {self.quarterly_revenue_growth_yoy}, "
+                f"Week 52 High: {self.week_52_high}, Week 52 Low: {self.week_52_low}, "
+                f"Timestamp: {self.timestamp}")
+
 class TimeSeriesDailyData(db.Model):
     symbol      = db.Column(db.String(10), primary_key=True)
     date        = db.Column(db.DateTime, primary_key=True)
@@ -105,6 +158,7 @@ def get_stock_ov_data(symbol):
     
     # Retrieve company overview data from the given symbol
     data, meta_data = ov.get_company_overview(symbol=symbol)
+    print(data)
     
     return data, meta_data
 
@@ -137,55 +191,50 @@ def get_intraday_time_series_data(symbol, interval='5min'):
 # Function to update a table entry with new data
 # Creates and updates entries on the CompanyInformation and FinancialMetrics table,
 # as they are both store data from the same API call
-def update_table_entry_ov(table, symbol, data):
+def update_table_entry_ov(symbol, data):
     
     # Create a new database session
     session = create_session()
     
     try:
         # Check to see if entry already exists for symbol
-        entry = session.query(table).filter_by(symbol=symbol).first()
+        entry = session.query(OverviewData).filter_by(symbol=symbol).first()
         
         # If entry for symbol does not already exist, create a new one
         if not entry:
-            entry = table(symbol=symbol)
+            entry = OverviewData(symbol=symbol)
             session.add(entry)
 
-        # Check the type of table and update the fields accordingly
-        if isinstance(entry, CompanyInformation):
-            # Update fields specific to CompanyInformation
-            entry.name = validate_field(data['Name'].iloc[0], str)
-            entry.description = validate_field(data['Description'].iloc[0], str)
-            entry.asset_type = validate_field(data['AssetType'].iloc[0], str)
-            entry.exchange = validate_field(data['Exchange'].iloc[0], str)
-            entry.currency = validate_field(data['Currency'].iloc[0], str)
-            entry.country = validate_field(data['Country'].iloc[0], str)
-            entry.sector = validate_field(data['Sector'].iloc[0], str)
-            entry.industry = validate_field(data['Industry'].iloc[0], str)
-            entry.fiscal_year_end = validate_field(data['FiscalYearEnd'].iloc[0], str)
-            entry.latest_quarter = validate_field(data['LatestQuarter'].iloc[0], str)
-        
-        elif table == FinancialMetrics:
-            # Update fields specific to FinancialMetrics
-            entry.market_capitalization = validate_field(data['MarketCapitalization'].iloc[0], (int, float))
-            entry.ebitda = validate_field(data['EBITDA'].iloc[0], float)
-            entry.pe_ratio = validate_field(data['PERatio'].iloc[0], float)
-            entry.peg_ratio = validate_field(data['PEGRatio'].iloc[0], float)
-            entry.earnings_per_share = validate_field(data['EPS'].iloc[0], float)
-            entry.revenue_per_share_ttm = validate_field(data['RevenuePerShareTTM'].iloc[0], float)
-            entry.profit_margin = validate_field(data['ProfitMargin'].iloc[0], float)
-            entry.operating_margin_ttm = validate_field(data['OperatingMarginTTM'].iloc[0], float)
-            entry.return_on_assets_ttm = validate_field(data['ReturnOnAssetsTTM'].iloc[0], float)
-            entry.return_on_equity_ttm = validate_field(data['ReturnOnEquityTTM'].iloc[0], float)
-            entry.revenue_ttm = validate_field(data['RevenueTTM'].iloc[0], float)
-            entry.gross_profit_ttm = validate_field(data['GrossProfitTTM'].iloc[0], float)
-            entry.quarterly_earnings_growth_yoy = validate_field(data['QuarterlyEarningsGrowthYOY'].iloc[0], float)
-            entry.quarterly_revenue_growth_yoy = validate_field(data['QuarterlyRevenueGrowthYOY'].iloc[0], float)
-            entry.week_52_high = validate_field(data['52WeekHigh'].iloc[0], float)
-            entry.week_52_low = validate_field(data['52WeekLow'].iloc[0], float)
+        # Update fields specific to OverviewData
+        entry.name = validate_field(data['Name'].iloc[0], str)
+        entry.description = validate_field(data['Description'].iloc[0], str)
+        entry.asset_type = validate_field(data['AssetType'].iloc[0], str)
+        entry.exchange = validate_field(data['Exchange'].iloc[0], str)
+        entry.currency = validate_field(data['Currency'].iloc[0], str)
+        entry.country = validate_field(data['Country'].iloc[0], str)
+        entry.sector = validate_field(data['Sector'].iloc[0], str)
+        entry.industry = validate_field(data['Industry'].iloc[0], str)
+        entry.fiscal_year_end = validate_field(data['FiscalYearEnd'].iloc[0], str)
+        entry.latest_quarter = validate_field(data['LatestQuarter'].iloc[0], datetime.datetime)
+        entry.market_capitalization = validate_field(data['MarketCapitalization'].iloc[0], (int, float))
+        entry.ebitda = validate_field(data['EBITDA'].iloc[0], float)
+        entry.pe_ratio = validate_field(data['PERatio'].iloc[0], float)
+        entry.peg_ratio = validate_field(data['PEGRatio'].iloc[0], float)
+        entry.earnings_per_share = validate_field(data['EPS'].iloc[0], float)
+        entry.revenue_per_share_ttm = validate_field(data['RevenuePerShareTTM'].iloc[0], float)
+        entry.profit_margin = validate_field(data['ProfitMargin'].iloc[0], float)
+        entry.operating_margin_ttm = validate_field(data['OperatingMarginTTM'].iloc[0], float)
+        entry.return_on_assets_ttm = validate_field(data['ReturnOnAssetsTTM'].iloc[0], float)
+        entry.return_on_equity_ttm = validate_field(data['ReturnOnEquityTTM'].iloc[0], float)
+        entry.revenue_ttm = validate_field(data['RevenueTTM'].iloc[0], float)
+        entry.gross_profit_ttm = validate_field(data['GrossProfitTTM'].iloc[0], float)
+        entry.quarterly_earnings_growth_yoy = validate_field(data['QuarterlyEarningsGrowthYOY'].iloc[0], float)
+        entry.quarterly_revenue_growth_yoy = validate_field(data['QuarterlyRevenueGrowthYOY'].iloc[0], float)
+        entry.week_52_high = validate_field(data['52WeekHigh'].iloc[0], float)
+        entry.week_52_low = validate_field(data['52WeekLow'].iloc[0], float)
     
         # Set the timestamp to the current datetime
-        entry.timestamp = datetime.now()
+        entry.timestamp = datetime.datetime.now()
 
         # Commit the session after all updates
         session.commit()
@@ -262,7 +311,7 @@ def update_table_entry_ts(symbol, data):
                     low_price = validate_field(row['3. low'], float),
                     close_price = validate_field(row['4. close'], float),
                     volume = validate_field(row['5. volume'], float),
-                    timestamp = datetime.now()
+                    timestamp = datetime.datetime.now()
                 )
                 session.add(new_entry)
                 
@@ -351,7 +400,7 @@ def update_table_entry_intraday(symbol, data):
                     low_price=validate_field(row['3. low'], float),
                     close_price=validate_field(row['4. close'], float),
                     volume=validate_field(row['5. volume'], float),
-                    timestamp=datetime.now()
+                    timestamp=datetime.datetime.now()
                 )
                 session.add(new_entry)
 
@@ -411,7 +460,7 @@ def is_data_up_to_date(symbol, table):
             
             if entry:
                 # Check if the entry's timestamp is within the last week
-                last_week = datetime.now() - timedelta(days=7)
+                last_week = datetime.datetime.now() - datetime.timedelta(days=7)
                 return entry.timestamp >= last_week
 
         # If no entry exists, data is not up-to-date
@@ -436,11 +485,10 @@ def fetch_and_store_company_overview_data(symbol):
     with current_app.app_context():
         # Check if overview data is up-to-date,
         # API call will only be done if the data has not been updated within the last week
-        if not is_data_up_to_date(symbol, CompanyInformation) or not is_data_up_to_date(symbol, FinancialMetrics):
+        if not is_data_up_to_date(symbol, OverviewData) or not is_data_up_to_date(symbol, OverviewData):
             # Fetch and update overview data
             data_ov, _ = get_stock_ov_data(symbol)
-            update_table_entry_ov(CompanyInformation, symbol, data_ov)
-            update_table_entry_ov(FinancialMetrics, symbol, data_ov)
+            update_table_entry_ov(symbol, data_ov)
             print(f"Company Overview data for {symbol} has been updated")
         else:
             print(f"Using existing overview data for {symbol}")

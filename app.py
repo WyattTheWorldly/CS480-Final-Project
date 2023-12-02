@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
 from getData import fetch_and_store_stock_data
-from databaseRetrieval import get_company_overview, get_financial_metrics, get_daily_time_series, get_intraday_time_series
+from databaseRetrieval import get_company_overview, get_daily_time_series, get_intraday_time_series
 
 app = Flask(__name__)
 
@@ -18,7 +18,6 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
 # Routes
 @app.route('/fetch_data/<symbol>')
 def fetch_data(symbol):
@@ -28,18 +27,34 @@ def fetch_data(symbol):
         return jsonify(
             {
                 "status": "success", 
-                "symbol"          : overview.symbol,
-                "name"            : overview.name,
-                "asset_type"      : overview.asset_type,
-                "description"     : overview.description,
-                "exchange"        : overview.exchange,
-                "currency"        : overview.currency,
-                "country"         : overview.country,
-                "sector"          : overview.sector,
-                "industry"        : overview.industry,
-                "fiscal_year_end" : overview.fiscal_year_end,
-                "latest_quarter"  : overview.latest_quarter,
-                "timestamp"       : overview.timestamp,
+                "symbol"                        : overview.symbol,
+                "name"                          : overview.name,
+                "asset_type"                    : overview.asset_type,
+                "description"                   : overview.description,
+                "exchange"                      : overview.exchange,
+                "currency"                      : overview.currency,
+                "country"                       : overview.country,
+                "sector"                        : overview.sector,
+                "industry"                      : overview.industry,
+                "fiscal_year_end"               : overview.fiscal_year_end,
+                "latest_quarter"                : overview.latest_quarter,
+                "market_capitalization"         : overview.market_capitalization,
+                "ebitda"                        : overview.ebitda,
+                "pe_ratio"                      : overview.pe_ratio,
+                "peg_ratio"                     : overview.peg_ratio,
+                "earnings_per_share"            : overview.earnings_per_share,
+                "revenue_per_share_ttm"         : overview.revenue_per_share_ttm,
+                "profit_margin"                 : overview.profit_margin,
+                "operating_margin_ttm"          : overview.operating_margin_ttm,
+                "return_on_assets_ttm"          : overview.return_on_assets_ttm,
+                "return_on_equity_ttm"          : overview.return_on_equity_ttm,
+                "revenue_ttm"                   : overview.revenue_ttm,
+                "gross_profit_ttm"              : overview.gross_profit_ttm,
+                "quarterly_earnings_growth_yoy" : overview.quarterly_earnings_growth_yoy,
+                "quarterly_revenue_growth_yoy"  : overview.quarterly_revenue_growth_yoy,
+                "week_52_high"                  : overview.week_52_high,
+                "week_52_low"                   : overview.week_52_low,
+                "timestamp"                     : overview.timestamp,
             }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

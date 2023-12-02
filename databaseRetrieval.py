@@ -1,16 +1,27 @@
-from flask import current_app
+from flask import current_app, jsonify
 from extensions import db, create_session
 from getData import fetch_and_store_company_overview_data, fetch_and_store_time_series_daily_data, fetch_and_store_time_series_intraday_data, is_data_up_to_date
-from getData import CompanyInformation, FinancialMetrics, TimeSeriesDailyData, TimeSeriesIntraDayData
+from getData import OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 # This file is for functions that have to do with retrieving data from the database
 
 def get_data_by_symbol(symbol, table):
+    print("START")
     session = create_session()
     try:
         # Retrieve entries for the table that match the given symbol
-        return session.query(table).filter_by(symbol=symbol).all()
+        results = session.query(table).filter_by(symbol=symbol).all()
+
+        # Print each field of each result
+        for result in results:
+            print(f"Query result for symbol '{symbol}':")
+            for attr in dir(result):
+                # Filter out special attributes and methods
+                if not attr.startswith('_') and not callable(getattr(result, attr)):
+                    print(f"    {attr}: {getattr(result, attr)}")
+        
+        return results
     except SQLAlchemyError as e:
         print(f"Database error for {symbol}: {str(e)}")
         return None
@@ -18,22 +29,13 @@ def get_data_by_symbol(symbol, table):
         session.close()
 
 # Function to get company overview from the database by symbol. This function also
-#  calls the fetch_and_store_stock_data function if the data is not up-to-date.
+# calls the fetch_and_store_stock_data function if the data is not up-to-date.
 def get_company_overview(symbol):
     with current_app.app_context():
         # Fetch and update overview data
         fetch_and_store_company_overview_data(symbol)
         # Get the company overview data from the database
-        return get_data_by_symbol(symbol, CompanyInformation)[0]
-        
-# Function to get financial metrics from the database by symbol. This function also
-#  calls the fetch_and_store_stock_data function if the data is not up-to-date.
-def get_financial_metrics(symbol):
-    with current_app.app_context():
-        # Fetch and update financial metrics data
-        fetch_and_store_company_overview_data(symbol)
-        # Get the financial metrics data from the database
-        return get_data_by_symbol(symbol, FinancialMetrics)[0]
+        return get_data_by_symbol(symbol, OverviewData)[0]
         
 # Function to get the daily time series from the database by symbol. This function 
 #  also calls the fetch_and_store_stock_data function if the data is not up-to-date.
