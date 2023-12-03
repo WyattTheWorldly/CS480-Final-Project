@@ -24,16 +24,16 @@ body{
     overflow-y: scroll;
     height: 100%;
     z-index: 999;
-    background-color: white;
+    background-color: #d5d5d4;
 }
 
 .logo {
-    font-family: Arial, sans-serif;
+    font-family: "Copperplate", "Courier New", fantasy;
     display: flex;
     align-items: center;
     text-align: center;
     justify-content: center;
-    color: #555555;
+    color: #2a3f70;
 }
 
 .stock-button{
@@ -46,7 +46,7 @@ body{
     margin-top: 8px;
     border-radius: 8px;
     cursor: pointer;
-    border: var(--primary-color) solid 1px;
+    border: grey solid .5px;
     background: white;
 
 }
