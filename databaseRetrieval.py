@@ -4,6 +4,7 @@ from sqlalchemy import func, extract, desc
 from extensions import db, create_session
 from getData import fetch_and_store_company_overview_data, fetch_and_store_time_series_daily_data, fetch_and_store_time_series_intraday_data, is_data_up_to_date
 from models import OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData, AverageWeeklyDailyData, AverageMonthlyDailyData, AverageYearlyDailyData
+from dailyTimeSeriesCalculations import update_average_daily_data
 
 # This file is for functions that have to do with retrieving data from the database
 
@@ -51,17 +52,28 @@ def get_intraday_time_series(symbol):
 # Function to retrieve the calculated weekly averages using the TimeSeriesDailyData set
 # from the AverageWeeklyDailyData table
 def get_average_weekly_daily_data(symbol):
+    # Check to see that data is up to date, and update it if it is not,
+    # before it is retrieved
+    update_average_daily_data(symbol, AverageWeeklyDailyData)
     # Get the weekly daily averages data from the database
     return get_data_by_symbol(symbol, AverageWeeklyDailyData)
 
 # Function to retrieve the calculated monthly averages using the TimeSeriesDailyData set
 # from the AverageMonthlyMonthlyData table
 def get_average_monthly_daily_data(symbol):
+    # Check to see that data is up to date, and update it if it is not,
+    # before it is retrieved
+    update_average_daily_data(symbol, AverageMonthlyDailyData)
     # Get the monthly daily averages data from the database
     return get_data_by_symbol(symbol, AverageMonthlyDailyData)
 
 # Function to retrieve the calculated yearly averages using the TimeSeriesDailyData set
 # from the AverageYearlyDailyData table
 def get_average_yearly_daily_data(symbol):
+    # Check to see that data is up to date, and update it if it is not,
+    # before it is retrieved
+    update_average_daily_data(symbol, AverageYearlyDailyData)
     # Get the yearly daily averages data from the database
     return get_data_by_symbol(symbol, AverageYearlyDailyData)
+
+

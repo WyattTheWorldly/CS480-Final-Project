@@ -8,11 +8,19 @@ from extensions import create_session
 from models import OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData
 from dailyTimeSeriesCalculations import calculate_and_store_weekly_averages, calculate_and_store_monthly_averages, calculate_and_store_yearly_averages
 
-# This file is for retrieving data from the API, creating tables in the datebase,
+# This file is for retrieving data from the API
 # and creating and updating table entries
 
 # Key that allows access to API
 API_key = 'N8LVC6JOGADHP6RE'
+
+# Alernate API keys
+# API_key = 'E9HF2DALRYZKAIJC'
+# API_key = 'QEFVQOMF9QYHO5D8'
+# API_key = 'XYSQVCSGU04NSAVY'
+# API_key = 'OPTLDARI9EHVIFD9'
+# API_key = 'OZXGSCWUKIBQFGCV'
+
 
 # Global variable to keep track of API calls
 api_call_count = 0
@@ -74,8 +82,7 @@ def validate_field(value, expected_type):
         return datetime.datetime.combine(value, datetime.time())
 
     # If conversion is not successful or not applicable, print error and return None
-    print(
-        f"Type mismatch or conversion error. Value: {value}, Expected Type: {expected_type}")
+    print(f"Type mismatch or conversion error. Value: {value}, Expected Type: {expected_type}")
     return None
 
 # Functions to get stock data from the AlphaVantage API
@@ -88,7 +95,6 @@ def get_stock_ov_data(symbol):
 
     # Retrieve company overview data from the given symbol
     data, meta_data = ov.get_company_overview(symbol=symbol)
-    print(data)
 
     return data, meta_data
 
@@ -112,8 +118,7 @@ def get_intraday_time_series_data(symbol, interval='5min'):
     ts = TimeSeries(key=API_key, output_format='pandas')
 
     # Retrieve intraday time series data for the given symbol
-    data, meta_data = ts.get_intraday(
-        symbol=symbol, interval=interval, outputsize='full')
+    data, meta_data = ts.get_intraday(symbol=symbol, interval=interval, outputsize='full')
 
     return data, meta_data
 
@@ -121,6 +126,9 @@ def get_intraday_time_series_data(symbol, interval='5min'):
 # Creates and updates entries on the CompanyInformation and FinancialMetrics table,
 # as they are both store data from the same API call
 def update_table_entry_ov(symbol, data):
+    
+    print("Starting update to the OverviewData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -134,43 +142,32 @@ def update_table_entry_ov(symbol, data):
             session.add(entry)
 
         # Update fields specific to OverviewData
-        entry.name = validate_field(data['Name'].iloc[0], str)
-        entry.description = validate_field(data['Description'].iloc[0], str)
-        entry.asset_type = validate_field(data['AssetType'].iloc[0], str)
-        entry.exchange = validate_field(data['Exchange'].iloc[0], str)
-        entry.currency = validate_field(data['Currency'].iloc[0], str)
-        entry.country = validate_field(data['Country'].iloc[0], str)
-        entry.sector = validate_field(data['Sector'].iloc[0], str)
-        entry.industry = validate_field(data['Industry'].iloc[0], str)
-        entry.fiscal_year_end = validate_field(
-            data['FiscalYearEnd'].iloc[0], str)
-        entry.latest_quarter = validate_field(
-            data['LatestQuarter'].iloc[0], datetime.datetime)
-        entry.market_capitalization = validate_field(
-            data['MarketCapitalization'].iloc[0], (int, float))
-        entry.ebitda = validate_field(data['EBITDA'].iloc[0], float)
-        entry.pe_ratio = validate_field(data['PERatio'].iloc[0], float)
-        entry.peg_ratio = validate_field(data['PEGRatio'].iloc[0], float)
-        entry.earnings_per_share = validate_field(data['EPS'].iloc[0], float)
-        entry.revenue_per_share_ttm = validate_field(
-            data['RevenuePerShareTTM'].iloc[0], float)
-        entry.profit_margin = validate_field(
-            data['ProfitMargin'].iloc[0], float)
-        entry.operating_margin_ttm = validate_field(
-            data['OperatingMarginTTM'].iloc[0], float)
-        entry.return_on_assets_ttm = validate_field(
-            data['ReturnOnAssetsTTM'].iloc[0], float)
-        entry.return_on_equity_ttm = validate_field(
-            data['ReturnOnEquityTTM'].iloc[0], float)
-        entry.revenue_ttm = validate_field(data['RevenueTTM'].iloc[0], float)
-        entry.gross_profit_ttm = validate_field(
-            data['GrossProfitTTM'].iloc[0], float)
-        entry.quarterly_earnings_growth_yoy = validate_field(
-            data['QuarterlyEarningsGrowthYOY'].iloc[0], float)
-        entry.quarterly_revenue_growth_yoy = validate_field(
-            data['QuarterlyRevenueGrowthYOY'].iloc[0], float)
-        entry.week_52_high = validate_field(data['52WeekHigh'].iloc[0], float)
-        entry.week_52_low = validate_field(data['52WeekLow'].iloc[0], float)
+        entry.name                          = validate_field(data['Name'].iloc[0], str)
+        entry.description                   = validate_field(data['Description'].iloc[0], str)
+        entry.asset_type                    = validate_field(data['AssetType'].iloc[0], str)
+        entry.exchange                      = validate_field(data['Exchange'].iloc[0], str)
+        entry.currency                      = validate_field(data['Currency'].iloc[0], str)
+        entry.country                       = validate_field(data['Country'].iloc[0], str)
+        entry.sector                        = validate_field(data['Sector'].iloc[0], str)
+        entry.industry                      = validate_field(data['Industry'].iloc[0], str)
+        entry.fiscal_year_end               = validate_field(data['FiscalYearEnd'].iloc[0], str)
+        entry.latest_quarter                = validate_field(data['LatestQuarter'].iloc[0], datetime.datetime)
+        entry.market_capitalization         = validate_field(data['MarketCapitalization'].iloc[0], (int, float))
+        entry.ebitda                        = validate_field(data['EBITDA'].iloc[0], float)
+        entry.pe_ratio                      = validate_field(data['PERatio'].iloc[0], float)
+        entry.peg_ratio                     = validate_field(data['PEGRatio'].iloc[0], float)
+        entry.earnings_per_share            = validate_field(data['EPS'].iloc[0], float)
+        entry.revenue_per_share_ttm         = validate_field(data['RevenuePerShareTTM'].iloc[0], float)
+        entry.profit_margin                 = validate_field(data['ProfitMargin'].iloc[0], float)
+        entry.operating_margin_ttm          = validate_field(data['OperatingMarginTTM'].iloc[0], float)
+        entry.return_on_assets_ttm          = validate_field(data['ReturnOnAssetsTTM'].iloc[0], float)
+        entry.return_on_equity_ttm          = validate_field(data['ReturnOnEquityTTM'].iloc[0], float)
+        entry.revenue_ttm                   = validate_field(data['RevenueTTM'].iloc[0], float)
+        entry.gross_profit_ttm              = validate_field(data['GrossProfitTTM'].iloc[0], float)
+        entry.quarterly_earnings_growth_yoy = validate_field(data['QuarterlyEarningsGrowthYOY'].iloc[0], float)
+        entry.quarterly_revenue_growth_yoy  = validate_field(data['QuarterlyRevenueGrowthYOY'].iloc[0], float)
+        entry.week_52_high                  = validate_field(data['52WeekHigh'].iloc[0], float)
+        entry.week_52_low                   = validate_field(data['52WeekLow'].iloc[0], float)
 
         # Set the timestamp to the current datetime
         entry.timestamp = datetime.datetime.now()
@@ -181,21 +178,27 @@ def update_table_entry_ov(symbol, data):
     # Rollback the session in case of integrity error
     except IntegrityError:
         session.rollback()
-        print(f"Integrity error for {symbol}. Data was not updated.")
+        print("During the execution of update_table_entry_ov function there was a")
+        print(f"integrity error for {symbol}. Data was not updated.")
     # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
         session.rollback()
-        print(f"Database error for {symbol}: {str(e)}")
+        print("During the execution of update_table_entry_ov function there was a")
+        print(f"database error for {symbol}: {str(e)}")
     # Rollback the session for any other exceptions
     except Exception as e:
         session.rollback()
-        print(f"Error updating data for {symbol}: {str(e)}")
+        print("During the execution of update_table_entry_ov function there was an")
+        print(f"error updating data for {symbol}: {str(e)}")
     # Ensure the session is closed after operation
     finally:
         session.close()
 
 # Creates and updates entries on the TimeSeriesDailyData table
 def update_table_entry_ts(symbol, data):
+    
+    print("Starting update to the TimeSeriesDailyData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -211,9 +214,6 @@ def update_table_entry_ts(symbol, data):
 
     # Placeholder for the last checked date
     last_checked_date = None
-
-    # Flag to track if new entries were added
-    new_entries_added = False
 
     try:
         # Iterate over all rows in the DataFrame
@@ -246,14 +246,14 @@ def update_table_entry_ts(symbol, data):
             # Entry does not exist, create a new one
             else:
                 new_entry = TimeSeriesDailyData(
-                    symbol=symbol,
-                    date=current_date,
-                    open_price=validate_field(row['1. open'], float),
-                    high_price=validate_field(row['2. high'], float),
-                    low_price=validate_field(row['3. low'], float),
-                    close_price=validate_field(row['4. close'], float),
-                    volume=validate_field(row['5. volume'], float),
-                    timestamp=datetime.datetime.now()
+                    symbol      = symbol,
+                    date        = current_date,
+                    open_price  = validate_field(row['1. open'], float),
+                    high_price  = validate_field(row['2. high'], float),
+                    low_price   = validate_field(row['3. low'], float),
+                    close_price = validate_field(row['4. close'], float),
+                    volume      = validate_field(row['5. volume'], float),
+                    timestamp   = datetime.datetime.now()
                 )
                 session.add(new_entry)
 
@@ -273,32 +273,32 @@ def update_table_entry_ts(symbol, data):
         # Commit the final batch
         session.commit()
 
-        # Check if new entries were added and call calculate_and_store_weekly_averages
-        if new_entries_added:
-            calculate_and_store_weekly_averages(symbol)
-            calculate_and_store_monthly_averages(symbol)
-            calculate_and_store_yearly_averages(symbol)
-
         print(f"Daily Time Series data for {symbol} has been updated")
 
     # Rollback the session in case of integrity error
     except IntegrityError:
         session.rollback()
-        print(f"Integrity error for {symbol}. Data was not updated.")
+        print("During the execution of update_table_entry_ts function there was a")
+        print(f"integrity error for {symbol}. Data was not updated.")
     # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
         session.rollback()
-        print(f"Database error for {symbol}: {str(e)}")
+        print("During the execution of update_table_entry_ts function there was a")
+        print(f"database error for {symbol}: {str(e)}")
     # Rollback the session for any other exceptions
     except Exception as e:
         session.rollback()
-        print(f"Error updating data for {symbol}: {str(e)}")
+        print("During the execution of update_table_entry_ts function there was a")
+        print(f"error updating data for {symbol}: {str(e)}")
     # Ensure the session is closed after operation
     finally:
         session.close()
 
 # Creates and updates entries on the TimeSeriesIntraDayData table
 def update_table_entry_intraday(symbol, data):
+    
+    print("Starting update to the TimeSeriesIntraDayData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -322,7 +322,7 @@ def update_table_entry_intraday(symbol, data):
 
             # Check for existing entry
             existing_entry = session.query(TimeSeriesIntraDayData).filter_by(
-                symbol=symbol, datetime=current_datetime).first()
+                symbol = symbol, datetime=current_datetime).first()
 
             # If entry exists
             if existing_entry:
@@ -345,14 +345,14 @@ def update_table_entry_intraday(symbol, data):
             # Entry does not exist, create a new one
             else:
                 new_entry = TimeSeriesIntraDayData(
-                    symbol=symbol,
-                    datetime=current_datetime,
-                    open_price=validate_field(row['1. open'], float),
-                    high_price=validate_field(row['2. high'], float),
-                    low_price=validate_field(row['3. low'], float),
-                    close_price=validate_field(row['4. close'], float),
-                    volume=validate_field(row['5. volume'], float),
-                    timestamp=datetime.datetime.now()
+                    symbol      = symbol,
+                    datetime    = current_datetime,
+                    open_price  = validate_field(row['1. open'], float),
+                    high_price  = validate_field(row['2. high'], float),
+                    low_price   = validate_field(row['3. low'], float),
+                    close_price = validate_field(row['4. close'], float),
+                    volume      = validate_field(row['5. volume'], float),
+                    timestamp   = datetime.datetime.now()
                 )
                 session.add(new_entry)
 
@@ -371,14 +371,17 @@ def update_table_entry_intraday(symbol, data):
     # Rollback the session in case of integrity error
     except IntegrityError:
         session.rollback()
-        print(f"Integrity error for {symbol}. Data was not updated.")
+        print("During the execution of update_table_entry_intraday function there was a")
+        print(f"integrity error for {symbol}. Data was not updated.")
     # Rollback the session in case of other SQLAlchemy errors
     except SQLAlchemyError as e:
         session.rollback()
-        print(f"Database error for {symbol}: {str(e)}")
+        print("During the execution of update_table_entry_intraday function there was a")
+        print(f"database error for {symbol}: {str(e)}")
     # Rollback the session for any other exceptions
     except Exception as e:
         session.rollback()
+        print("during the execution of update_table_entry_intraday function there was a")
         print(f"Error updating data for {symbol}: {str(e)}")
     # Ensure the session is closed after operation
     finally:
@@ -451,11 +454,11 @@ def fetch_and_store_time_series_daily_data(symbol):
     with current_app.app_context():
         # Check if daily time series data is up-to-date,
         # API call will only be done if the data has not been updated within the same day
-        # if not is_data_up_to_date(symbol, TimeSeriesDailyData):
+        #if not is_data_up_to_date(symbol, TimeSeriesDailyData):
         data_ts, _ = get_daily_time_series_data(symbol)
         update_table_entry_ts(symbol, data_ts)
-        # else:
-        # print(f"Using existing time series data {symbol}")
+        #else:
+            #print(f"Using existing time series data {symbol}")
 
 # Function to fetch and store intraday time series data
 def fetch_and_store_time_series_intraday_data(symbol):

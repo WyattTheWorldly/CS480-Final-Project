@@ -15,7 +15,6 @@ let monthData = [];
 // to load data into the global arrays.
 
 function loadAllDataSeries(symbol = "AAPL"){
-
     updateOverview(symbol);
     // fetchData(symbol);//default is TIME_SERIES_DAILY
     // fetchData(symbol, "TIME_SERIES_WEEKLY");

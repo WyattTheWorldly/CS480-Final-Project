@@ -1,13 +1,27 @@
+from dotenv import load_dotenv
+import os
 import json
 from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
-from getData import fetch_and_store_time_series_daily_data
+from getData import fetch_and_store_time_series_daily_data, fetch_and_store_stock_data
 from databaseRetrieval import get_company_overview, get_daily_time_series, get_intraday_time_series
+
+# This loads the environment variables from .env
+# pip install python-dotenv
+load_dotenv()  
 
 app = Flask(__name__)
 
-# configure database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Cs480@localhost/postgres'
+# old database configuration
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Cs480@localhost/postgres'
+
+# AMAZON RDS database configutation
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"postgresql://{os.getenv('DATABASE_USER')}:{os.getenv('DATABASE_PASS')}@"
+    f"{os.getenv('DATABASE_HOST')}:{os.getenv('DATABASE_PORT')}/"
+    f"{os.getenv('DATABASE_NAME')}?sslmode=require"
+)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database with the Flask app
@@ -15,7 +29,11 @@ db.init_app(app)
 
 # Create the database and tables
 with app.app_context():
-    db.create_all()
+    try:
+        with app.app_context():
+            db.create_all()
+    except Exception as e:
+        print(f"Error creating the database: {str(e)}")
 
 # Routes
 @app.route('/fetch_data/<symbol>')
@@ -26,22 +44,21 @@ def fetch_data(symbol):
         return jsonify(
             {
                 "status": "success", 
-                "symbol"                        : overview.symbol,
-                "name"                          : overview.name,
-                "asset_type"                    : overview.asset_type,
-                "description"                   : overview.description,
-                "exchange"                      : overview.exchange,
-                "currency"                      : overview.currency,
-                "country"                       : overview.country,
-                "sector"                        : overview.sector,
-                "industry"                      : overview.industry,
-                "fiscal_year_end"               : overview.fiscal_year_end,
-                "latest_quarter"                : overview.latest_quarter,
-                "timestamp"                     : overview.timestamp,
+                "symbol"                : overview.symbol,
+                "name"                  : overview.name,
+                "asset_type"            : overview.asset_type,
+                "description"           : overview.description,
+                "exchange"              : overview.exchange,
+                "currency"              : overview.currency,
+                "country"               : overview.country,
+                "sector"                : overview.sector,
+                "industry"              : overview.industry,
+                "fiscal_year_end"       : overview.fiscal_year_end,
+                "latest_quarter"        : overview.latest_quarter,
+                "timestamp"             : overview.timestamp,
             }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 # Listen for POST requests to the /stock_data route
 # Primarily for use in JS file for graph views

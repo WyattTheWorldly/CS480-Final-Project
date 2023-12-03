@@ -5,9 +5,15 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from extensions import create_session
 from models import TimeSeriesDailyData, AverageWeeklyDailyData, AverageMonthlyDailyData, AverageYearlyDailyData
 
+# This file is for calculating averages from stored Time Series Daily Data
+# weekly, monthly, and yearly averages are calculated by symbol.
+
 # Function to calculate and store average weekly daily data
 # from the time series daily api call 
 def calculate_and_store_weekly_averages(symbol):
+    
+    print("Starting to update the AverageWeeklyDailyData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -97,10 +103,10 @@ def calculate_and_store_weekly_averages(symbol):
 # Function to group data by weeks
 def group_by_week(daily_data):
     # Sort the data by date to ensure correct grouping
-    daily_data.sort(key=lambda x: x.date)
+    daily_data.sort(key = lambda x: x.date)
 
     # Group by week
-    for _, week_data in groupby(daily_data, key=lambda x: x.date.isocalendar()[1]):
+    for _, week_data in groupby(daily_data, key = lambda x: x.date.isocalendar()[1]):
         yield week_data
 
 # Function to calcute averages for weekly data
@@ -113,26 +119,28 @@ def calculate_weekly_average(week_data):
         return None
 
     # Calculate averages
-    open_avg = sum(d.open_price for d in week_data_list) / len(week_data_list)
-    high_avg = sum(d.high_price for d in week_data_list) / len(week_data_list)
-    low_avg = sum(d.low_price for d in week_data_list) / len(week_data_list)
-    close_avg = sum(d.close_price for d in week_data_list) / \
-        len(week_data_list)
-    volume_avg = sum(d.volume for d in week_data_list) / len(week_data_list)
+    open_avg    = sum(d.open_price for d in week_data_list) / len(week_data_list)
+    high_avg    = sum(d.high_price for d in week_data_list) / len(week_data_list)
+    low_avg     = sum(d.low_price for d in week_data_list) / len(week_data_list)
+    close_avg   = sum(d.close_price for d in week_data_list) / len(week_data_list)
+    volume_avg  = sum(d.volume for d in week_data_list) / len(week_data_list)
 
     # Return the calculated averages in a dictionary
     return {
-        'symbol': week_data_list[0].symbol,
-        'open_avg': open_avg,
-        'high_avg': high_avg,
-        'low_avg': low_avg,
-        'close_avg': close_avg,
+        'symbol'    : week_data_list[0].symbol,
+        'open_avg'  : open_avg,
+        'high_avg'  : high_avg,
+        'low_avg'   : low_avg,
+        'close_avg' : close_avg,
         'volume_avg': volume_avg
     }
 
 # function to calculate and store average monthly daily data
 # from the time series daily api call 
 def calculate_and_store_monthly_averages(symbol):
+    
+    print("Starting to update the AverageMonthlyDailyData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -180,15 +188,14 @@ def calculate_and_store_monthly_averages(symbol):
 
                 # Store the calculated monthtly averages in the database
                 new_avg = AverageMonthlyDailyData(
-                    symbol=avg_data['symbol'],
-                    date=datetime.datetime(
-                        avg_data['year'], avg_data['month'], 1),
-                    open_price=avg_data['open_avg'],
-                    high_price=avg_data['high_avg'],
-                    low_price=avg_data['low_avg'],
-                    close_price=avg_data['close_avg'],
-                    volume=avg_data['volume_avg'],
-                    timestamp=datetime.datetime.now()
+                    symbol      = avg_data['symbol'],
+                    date        = datetime.datetime(avg_data['year'], avg_data['month'], 1),
+                    open_price  = avg_data['open_avg'],
+                    high_price  = avg_data['high_avg'],
+                    low_price   = avg_data['low_avg'],
+                    close_price = avg_data['close_avg'],
+                    volume      = avg_data['volume_avg'],
+                    timestamp   = datetime.datetime.now()
                 )
                 # Add or update the record in the database
                 session.merge(new_avg)
@@ -218,7 +225,7 @@ def calculate_and_store_monthly_averages(symbol):
 # Function to group data by months
 def group_by_month(daily_data):
     # Sort the data by date to ensure correct grouping
-    daily_data.sort(key=lambda x: (x.date.year, x.date.month))
+    daily_data.sort(key = lambda x: (x.date.year, x.date.month))
 
     # Group by month
     for (_, month), month_data in groupby(daily_data, key=lambda x: (x.date.year, x.date.month)):
@@ -234,30 +241,30 @@ def calculate_monthly_average(month_data):
         return None
 
     # Calculate averages
-    open_avg = sum(d.open_price for d in month_data_list) / \
-        len(month_data_list)
-    high_avg = sum(d.high_price for d in month_data_list) / \
-        len(month_data_list)
-    low_avg = sum(d.low_price for d in month_data_list) / len(month_data_list)
-    close_avg = sum(d.close_price for d in month_data_list) / \
-        len(month_data_list)
-    volume_avg = sum(d.volume for d in month_data_list) / len(month_data_list)
+    open_avg    = sum(d.open_price for d in month_data_list) / len(month_data_list)
+    high_avg    = sum(d.high_price for d in month_data_list) / len(month_data_list)
+    low_avg     = sum(d.low_price for d in month_data_list) / len(month_data_list)
+    close_avg   = sum(d.close_price for d in month_data_list) / len(month_data_list)
+    volume_avg  = sum(d.volume for d in month_data_list) / len(month_data_list)
 
     # Return the calculated averages in a dictionary
     return {
-        'symbol': month_data_list[0].symbol,
-        'year': month_data_list[0].date.year,
-        'month': month_data_list[0].date.month,
-        'open_avg': open_avg,
-        'high_avg': high_avg,
-        'low_avg': low_avg,
-        'close_avg': close_avg,
-        'volume_avg': volume_avg
+        'symbol'        : month_data_list[0].symbol,
+        'year'          : month_data_list[0].date.year,
+        'month'         : month_data_list[0].date.month,
+        'open_avg'      : open_avg,
+        'high_avg'      : high_avg,
+        'low_avg'       : low_avg,
+        'close_avg'     : close_avg,
+        'volume_avg'    : volume_avg
     }
 
 # function to calculate and store average yearly daily data
 # from the time series daily api call 
 def calculate_and_store_yearly_averages(symbol):
+    
+    print("Starting to update the AverageWeeklyYearlyData table")
+    
     # Create a new database session
     session = create_session()
 
@@ -293,15 +300,14 @@ def calculate_and_store_yearly_averages(symbol):
 
             # Store the calculated yearly averages in the database
             new_avg = AverageYearlyDailyData(
-                symbol=yearly_avg['symbol'],
-                # First day of the year
-                date=datetime.datetime(yearly_avg['year'], 1, 1),
-                open_price=yearly_avg['open_avg'],
-                high_price=yearly_avg['high_avg'],
-                low_price=yearly_avg['low_avg'],
-                close_price=yearly_avg['close_avg'],
-                volume=yearly_avg['volume_avg'],
-                timestamp=datetime.datetime.now()
+                symbol      = yearly_avg['symbol'],
+                date        = datetime.datetime(yearly_avg['year'], 1, 1),
+                open_price  = yearly_avg['open_avg'],
+                high_price  = yearly_avg['high_avg'],
+                low_price   = yearly_avg['low_avg'],
+                close_price = yearly_avg['close_avg'],
+                volume      = yearly_avg['volume_avg'],
+                timestamp   = datetime.datetime.now()
             )
             # Add or update the record in the database
             session.merge(new_avg)
@@ -331,20 +337,69 @@ def calculate_and_store_yearly_averages(symbol):
 # Function to calcute averages for yearly data
 def calculate_yearly_average(daily_data):
     # Calculate yearly averages
-    open_avg = sum(d.open_price for d in daily_data) / len(daily_data)
-    high_avg = sum(d.high_price for d in daily_data) / len(daily_data)
-    low_avg = sum(d.low_price for d in daily_data) / len(daily_data)
-    close_avg = sum(d.close_price for d in daily_data) / len(daily_data)
-    volume_avg = sum(d.volume for d in daily_data) / len(daily_data)
+    open_avg    = sum(d.open_price for d in daily_data) / len(daily_data)
+    high_avg    = sum(d.high_price for d in daily_data) / len(daily_data)
+    low_avg     = sum(d.low_price for d in daily_data) / len(daily_data)
+    close_avg   = sum(d.close_price for d in daily_data) / len(daily_data)
+    volume_avg  = sum(d.volume for d in daily_data) / len(daily_data)
 
     # Return the calculated averages in a dictionary
     return {
         # Assuming all entries have the same symbol
-        'symbol': daily_data[0].symbol,
-        'year': daily_data[0].date.year,
-        'open_avg': open_avg,
-        'high_avg': high_avg,
-        'low_avg': low_avg,
-        'close_avg': close_avg,
-        'volume_avg': volume_avg
+        'symbol'        : daily_data[0].symbol,
+        'year'          : daily_data[0].date.year,
+        'open_avg'      : open_avg,
+        'high_avg'      : high_avg,
+        'low_avg'       : low_avg,
+        'close_avg'     : close_avg,
+        'volume_avg'    : volume_avg
     }
+
+# Function to check to see that data stored in the 
+# average daily tables is up to date
+def update_average_daily_data(symbol, table):
+    session = create_session()
+
+    try:
+        # Retrieve the most recent entry for the symbol from TimeSeriesDailyData
+        latest_time_series_entry = session.query(TimeSeriesDailyData).filter_by(
+            symbol=symbol).order_by(TimeSeriesDailyData.timestamp.desc()).first()
+
+        # Retrieve the most recent entry for the symbol from the specified table
+        latest_other_entry = session.query(table).filter_by(
+            symbol=symbol).order_by(table.timestamp.desc()).first()
+
+        if latest_time_series_entry and latest_other_entry:
+            # Compare the timestamps of the two entries
+            # If TimeSeriesDailyData entry is more recent, execute the function
+            if latest_time_series_entry.timestamp > latest_other_entry.timestamp:
+                
+                if table == AverageWeeklyDailyData:
+                    calculate_and_store_weekly_averages(symbol)
+                if table == AverageMonthlyDailyData:
+                    calculate_and_store_monthly_averages(symbol)
+                if table == AverageYearlyDailyData:
+                    calculate_and_store_yearly_averages(symbol)
+                 
+        # If there is data from TimeSeriesDailyData and none from the other
+        # passed table, the passed table needs to be updated.
+        elif latest_time_series_entry and not latest_other_entry:
+            # check to call appropriate function
+            if table == AverageWeeklyDailyData:
+                    calculate_and_store_weekly_averages(symbol)
+            # check to call appropriate function
+            if table == AverageMonthlyDailyData:
+                    calculate_and_store_monthly_averages(symbol)
+            # check to call appropriate function
+            if table == AverageYearlyDailyData:
+                    calculate_and_store_yearly_averages(symbol)
+        
+        # If no entry exists in either table or TimeSeriesDailyData entry is not more recent
+        return print("Data already up to date")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return
+
+    finally:
+        session.close()
