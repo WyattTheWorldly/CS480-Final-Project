@@ -1,5 +1,7 @@
 from extensions import db
 
+# This file is for defining database tables
+
 # Defining tables for database
 class OverviewData(db.Model):
     symbol                          = db.Column(db.String(10), unique=True, primary_key=True)

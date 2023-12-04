@@ -6,7 +6,6 @@ from flask import current_app
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from extensions import create_session
 from models import OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData
-from dailyTimeSeriesCalculations import calculate_and_store_weekly_averages, calculate_and_store_monthly_averages, calculate_and_store_yearly_averages
 
 # This file is for retrieving data from the API
 # and creating and updating table entries
@@ -24,7 +23,6 @@ API_key = 'N8LVC6JOGADHP6RE'
 
 # Global variable to keep track of API calls
 api_call_count = 0
-
 
 def track_api_call():
     global api_call_count
@@ -127,7 +125,7 @@ def get_intraday_time_series_data(symbol, interval='5min'):
 # as they are both store data from the same API call
 def update_table_entry_ov(symbol, data):
     
-    print("Starting update to the OverviewData table")
+    print(f"Starting update to the OverviewData table for {symbol}.")
     
     # Create a new database session
     session = create_session()
@@ -174,6 +172,8 @@ def update_table_entry_ov(symbol, data):
 
         # Commit the session after all updates
         session.commit()
+    
+        print(f"Company Overview data for {symbol} has been updated")
 
     # Rollback the session in case of integrity error
     except IntegrityError:
@@ -197,7 +197,7 @@ def update_table_entry_ov(symbol, data):
 # Creates and updates entries on the TimeSeriesDailyData table
 def update_table_entry_ts(symbol, data):
     
-    print("Starting update to the TimeSeriesDailyData table")
+    print(f"Starting update to the TimeSeriesDailyData table for {symbol}.")
     
     # Create a new database session
     session = create_session()
@@ -214,6 +214,8 @@ def update_table_entry_ts(symbol, data):
 
     # Placeholder for the last checked date
     last_checked_date = None
+    
+    commit = 0
 
     try:
         # Iterate over all rows in the DataFrame
@@ -257,15 +259,16 @@ def update_table_entry_ts(symbol, data):
                 )
                 session.add(new_entry)
 
-                # Set the flag to True
-                new_entries_added = True
-
             # Update the last checked date
             last_checked_date = current_date
 
             # Commit every 500 records to avoid a large transaction
             if counter % 500 == 0:
                 session.commit()
+                
+                # Provide terminal feedback to show that the function is executing 
+                commit += 1
+                print("Commitment #" + str(commit))
 
             # Increment the counter at the end of each loop iteration
             counter += 1
@@ -297,7 +300,7 @@ def update_table_entry_ts(symbol, data):
 # Creates and updates entries on the TimeSeriesIntraDayData table
 def update_table_entry_intraday(symbol, data):
     
-    print("Starting update to the TimeSeriesIntraDayData table")
+    print(f"Starting update to the TimeSeriesIntraDayData table for {symbol}.")
     
     # Create a new database session
     session = create_session()
@@ -314,6 +317,8 @@ def update_table_entry_intraday(symbol, data):
 
     # Placeholder for the last checked date
     last_checked_datetime = None
+    
+    commit = 0
 
     try:
         # Iterate over all rows in the DataFrame
@@ -362,10 +367,16 @@ def update_table_entry_intraday(symbol, data):
             # Commit every 500 records to avoid a large transaction
             if counter % 500 == 0:
                 session.commit()
+                
+                # Provide terminal feedback to show that the function is executing 
+                commit += 1
+                print("Commitment #" + str(commit))
+            
             counter += 1
 
         # Commit the final batch
         session.commit()
+       
         print(f"Intraday Time Series data for {symbol} has been updated")
 
     # Rollback the session in case of integrity error
@@ -444,7 +455,6 @@ def fetch_and_store_company_overview_data(symbol):
             # Fetch and update overview data
             data_ov, _ = get_stock_ov_data(symbol)
             update_table_entry_ov(symbol, data_ov)
-            print(f"Company Overview data for {symbol} has been updated")
         else:
             print(f"Using existing overview data for {symbol}")
 
@@ -454,11 +464,11 @@ def fetch_and_store_time_series_daily_data(symbol):
     with current_app.app_context():
         # Check if daily time series data is up-to-date,
         # API call will only be done if the data has not been updated within the same day
-        #if not is_data_up_to_date(symbol, TimeSeriesDailyData):
-        data_ts, _ = get_daily_time_series_data(symbol)
-        update_table_entry_ts(symbol, data_ts)
-        #else:
-            #print(f"Using existing time series data {symbol}")
+        if not is_data_up_to_date(symbol, TimeSeriesDailyData):
+            data_ts, _ = get_daily_time_series_data(symbol)
+            update_table_entry_ts(symbol, data_ts)
+        else:
+            print(f"Using existing time series data {symbol}")
 
 # Function to fetch and store intraday time series data
 def fetch_and_store_time_series_intraday_data(symbol):

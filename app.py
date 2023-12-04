@@ -3,7 +3,7 @@ import os
 import json
 from flask import Flask, render_template, jsonify, request, after_this_request
 from extensions import db, create_session
-from getData import fetch_and_store_time_series_daily_data, fetch_and_store_stock_data
+from getData import fetch_and_store_time_series_daily_data
 from databaseRetrieval import get_company_overview, get_daily_time_series, get_intraday_time_series
 
 # This loads the environment variables from .env
@@ -59,7 +59,7 @@ def fetch_data(symbol):
             }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
+    
 # Listen for POST requests to the /stock_data route
 # Primarily for use in JS file for graph views
 @app.route("/stock_data", methods = ['POST'])
