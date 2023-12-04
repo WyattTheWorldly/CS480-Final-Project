@@ -27,6 +27,7 @@ pipreqs==0.4.13
 psycopg2==2.9.9
 pyproject_hooks==1.0.0
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3.post1
 requests==2.31.0
 six==1.16.0
