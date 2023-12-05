@@ -3,9 +3,9 @@ import pandas as pd
 from alpha_vantage.fundamentaldata import FundamentalData
 from alpha_vantage.timeseries import TimeSeries
 from flask import current_app
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import (IntegrityError, SQLAlchemyError)
 from extensions import create_session
-from models import OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData
+from models import (OverviewData, TimeSeriesDailyData, TimeSeriesIntraDayData)
 
 # This file is for retrieving data from the API
 # and creating and updating table entries
@@ -226,24 +226,28 @@ def update_table_entry_ts(symbol, data):
             existing_entry = session.query(TimeSeriesDailyData).filter_by(
                 symbol=symbol, date=current_date).first()
 
-            # If entry exists
+            # If entry exists, increment the count
             if existing_entry:
-                # If the current date is exactly one day after the last checked date,
-                # it means data is consecutive. In this case, increment the count.
-                if last_checked_date and current_date == last_checked_date - pd.Timedelta(days=1):
-                    existing_entries_count += 1
-
-                # If the current date is not consecutive, reset the count to 1
-                # as this is a new sequence of data.
-                else:
-                    existing_entries_count = 1
-
-                # If there are 30 consecutive existing entries, it's assumed that
-                # there is unlikely to be new data to add. So, the loop is broken
-                # to stop further unnecessary processing.
+                existing_entries_count += 1
+                print(f"Existing entry found at {current_date}. Running total: {existing_entries_count}")
+                
                 if existing_entries_count >= 30:
                     print("30 consecutive existing entries found, aborting.")
                     break
+                else:
+                    continue
+            
+            else:
+                # If no existing entry is found, reset the count to 1
+                existing_entries_count = 1
+                print(f"New sequence of data found at {current_date}. Resetting count.")
+
+            # If there are 30 consecutive existing entries, it's assumed that
+            # there is unlikely to be new data to add. So, the loop is broken
+            # to stop further unnecessary processing.
+            if existing_entries_count >= 30:
+                print("30 consecutive existing entries found, aborting.")
+                break
 
             # Entry does not exist, create a new one
             else:
@@ -258,6 +262,7 @@ def update_table_entry_ts(symbol, data):
                     timestamp   = datetime.datetime.now()
                 )
                 session.add(new_entry)
+                print(f"New entry created at {current_date}.")
 
             # Update the last checked date
             last_checked_date = current_date
@@ -335,6 +340,7 @@ def update_table_entry_intraday(symbol, data):
                 if last_checked_datetime and current_datetime == last_checked_datetime - pd.Timedelta(minutes=5):
                     # Increment the count for consecutive entries
                     existing_entries_count += 1
+                    print("Existing entries running total: " + str(existing_entries_count))
                 else:
                     # Reset the count if the entries are not consecutive
                     existing_entries_count = 1
@@ -343,8 +349,8 @@ def update_table_entry_intraday(symbol, data):
                 # consecutive existing entries, it's assumed that
                 # there is unlikely to be new data to add. So, the loop is broken
                 # to stop further unnecessary processing.
-                if existing_entries_count >= 288:
-                    print("288 consecutive existing entries found, aborting.")
+                if existing_entries_count >= 100:
+                    print("100 consecutive existing entries found, aborting.")
                     break
 
             # Entry does not exist, create a new one
