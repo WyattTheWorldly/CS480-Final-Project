@@ -18,7 +18,7 @@ let currentSymbol = 'AAPL'; // Default symbol
 let currentField = 'open_price'; // Default field
 let currentInterval = 'Yearly Averages'; // Default interval
 
-let intervals = ['5 min Increments','Daily Averages', 'Weekly Averages', 'Monthly Averages', 'Yearly Averages'];
+let intervals = ['5 min Increments','Daily', 'Weekly Averages', 'Monthly Averages', 'Yearly Averages'];
 
 // Create a simple switcher (assuming createSimpleSwitcher function exists)
 let switcherElement = createSimpleSwitcher(intervals, intervals[0], syncToInterval);
@@ -32,7 +32,7 @@ async function syncToInterval(interval) {
         case '5 min Increments':
             timeIncrement = 'intraday';
             break;
-        case 'Daily Averages':
+        case 'Daily':
             timeIncrement = 'daily';
             break;
         case 'Weekly Averages':
@@ -88,13 +88,15 @@ function processData(data) {
 
     const processedData = data.reduce((acc, entry) => {
         if (entry.date && entry.open_price && entry.high_price && entry.low_price && entry.close_price) {
-            acc.push({
-                time: entry.date, // Assuming entry.date is already in Unix timestamp format
+            const dataPoint = {
+                time: entry.date, 
                 open: entry.open_price,
                 high: entry.high_price,
                 low: entry.low_price,
                 close: entry.close_price
-            });
+            };
+            console.log('Valid Data Point:', dataPoint); // Log each valid data point
+            acc.push(dataPoint);
         } else {
             console.error("Invalid entry skipped:", entry);
         }
@@ -106,6 +108,7 @@ function processData(data) {
 }
 
 
+/*
 // Function to render or update the chart using lightweight-charts
 function renderChart(data, chartInstance, chartContainerId) {
     console.log("Executing renderChart function");
@@ -190,6 +193,59 @@ function renderChart(data, chartInstance, chartContainerId) {
     }
     
     return chartInstance;
+}
+*/
+
+function renderChart(data, chartInstance, chartContainerId) {
+    console.log("Executing renderChart function");
+    const chartContainer = document.getElementById(chartContainerId);
+    if (!chartContainer) {
+        console.error(`Chart container with ID '${chartContainerId}' not found.`);
+        return;
+    }
+    if (!chartInstance) {
+        chartInstance = createNewChartInstance(chartContainer);
+    }
+    updateChartWithData(chartInstance, data);
+    return chartInstance;
+}
+
+function createNewChartInstance(chartContainer) {
+    console.log('Creating new chart instance');
+    let chartInstance = LightweightCharts.createChart(chartContainer, {
+        width: chartContainer.offsetWidth,
+        height: chartContainer.offsetHeight,
+        layout: { backgroundColor: '#ffffff', textColor: 'rgba(33, 56, 77, 1)' },
+        grid: { vertLines: { color: 'rgba(197, 203, 206, 0.5)' }, horzLines: { color: 'rgba(197, 203, 206, 0.5)' } },
+        timeScale: { borderColor: 'rgba(197, 203, 206, 1)' },
+    });
+    console.log('Chart instance created');
+    const candleSeries = chartInstance.addCandlestickSeries({
+        upColor: 'rgba(255, 144, 0, 1)', downColor: 'rgba(0, 144, 255, 1)', 
+        borderVisible: false, wickVisible: true, borderColor: '#000000', wickColor: '#000000',
+        borderUpColor: 'rgba(255, 144, 0, 1)', borderDownColor: 'rgba(0, 144, 255, 1)',
+        wickUpColor: 'rgba(255, 144, 0, 1)', wickDownColor: 'rgba(0, 144, 255, 1)',
+    });
+    console.log('Candlestick series added to chart');
+    chartInstance.candleSeries = candleSeries;
+    return chartInstance;
+}
+
+function updateChartWithData(chartInstance, data) {
+    console.log('Updating chart with new data');
+    console.log('Chart instance:', chartInstance);
+    console.log('Candlestick series:', chartInstance.candleSeries);
+    if (!data.length) {
+        console.error('No valid data to render the chart.');
+        return;
+    }
+    data.forEach((d, index) => console.log(`Data point ${index}:`, d));
+    try {
+        chartInstance.candleSeries.setData(data);
+        console.log('Data set to the chart successfully');
+    } catch (error) {
+        console.error('Error setting data to the chart:', error);
+    }
 }
 
 // This function should be called once for when stock button is clicked

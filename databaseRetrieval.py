@@ -13,10 +13,21 @@ def get_data_by_symbol(symbol, table):
     # Create a new database session
     session = create_session()
     try:
-        # Retrieve entries for the table that match the given symbol
-        results = session.query(table).filter_by(symbol=symbol).all()
-        print(f"Data successfully retrieved from {table} for {symbol}.")
-        return results
+        if table == OverviewData:
+            # Retrieve entries for the table that match the given symbol
+            results = session.query(table).filter_by(symbol=symbol).all()
+            print(f"Data successfully retrieved from {table} for {symbol}.")
+            return results
+        elif table == TimeSeriesIntraDayData:
+            results = session.query(table).filter_by(symbol=symbol).order_by(table.datetime.asc()).all()
+            print(f"Data successfully retrieved from {table} for {symbol}.")
+            return results
+        
+        else:
+            # Retrieve entries for the table that match the given symbol and sort by date
+            results = session.query(table).filter_by(symbol=symbol).order_by(table.date.asc()).all()
+            print(f"Data successfully retrieved from {table} for {symbol}.")
+            return results
 
     except SQLAlchemyError as e:
         print(f"Database error for {symbol}: {str(e)}")
@@ -94,18 +105,19 @@ def timeseries_data_to_dict(data):
         date_field = 'datetime' if isinstance(data, TimeSeriesIntraDayData) else 'date'
         date_value = getattr(data, date_field)
 
-        # Convert date to UNIX timestamp
-        unix_timestamp = int(date_value.timestamp()) if date_value else None
+        # Convert date to UNIX timestamp, use 0 if missing
+        unix_timestamp = int(date_value.timestamp()) if date_value else 0
 
+        # Set default values for other fields if they are missing
         return {
             "symbol": data.symbol,
             "date": unix_timestamp,
-            "open_price": data.open_price,
-            "high_price": data.high_price,
-            "low_price": data.low_price,
-            "close_price": data.close_price,
-            "volume": data.volume,
-            "timestamp": data.timestamp.strftime("%Y-%m-%d %H:%M:%S") if data.timestamp else None
+            "open_price": data.open_price if data.open_price is not None else 0,
+            "high_price": data.high_price if data.high_price is not None else 0,
+            "low_price": data.low_price if data.low_price is not None else 0,
+            "close_price": data.close_price if data.close_price is not None else 0,
+            "volume": data.volume if data.volume is not None else 0,
+            "timestamp": data.timestamp.strftime("%Y-%m-%d %H:%M:%S") if data.timestamp else 'N/A'
         }
     
     except AttributeError as e:
