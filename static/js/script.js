@@ -82,7 +82,6 @@ async function fetchGraphData(symbol, timeInterval) {
     }
 }
 
-
 function processData(data) {
     console.log("Executing processData function");
 
@@ -106,95 +105,6 @@ function processData(data) {
     console.log("Processed Data:", processedData);
     return processedData;
 }
-
-
-/*
-// Function to render or update the chart using lightweight-charts
-function renderChart(data, chartInstance, chartContainerId) {
-    console.log("Executing renderChart function");
-
-    // Log the received data
-    console.log("Received data for rendering:", data);
-
-    // Find the container where the chart will be drawn
-    const chartContainer = document.getElementById(chartContainerId);
-    if (!chartContainer) {
-        console.error(`Chart container with ID '${chartContainerId}' not found.`);
-        return;
-    }
-    console.log(`Chart container found: ${chartContainerId}`);
-
-    // If a chart instance does not exist, create a new one
-    if (!chartInstance) {
-        console.log('Creating new chart instance');
-        chartInstance = LightweightCharts.createChart(chartContainer, {
-            width: chartContainer.offsetWidth,
-            height: chartContainer.offsetHeight,
-            layout: {
-                backgroundColor: '#ffffff',
-                textColor: 'rgba(33, 56, 77, 1)',
-            },
-            grid: {
-                vertLines: {
-                    color: 'rgba(197, 203, 206, 0.5)',
-                },
-                horzLines: {
-                    color: 'rgba(197, 203, 206, 0.5)',
-                },
-            },
-            timeScale: {
-                borderColor: 'rgba(197, 203, 206, 1)',
-            },
-        });
-        console.log('Chart instance created');
-
-        // Create a candlestick series
-        const candleSeries = chartInstance.addCandlestickSeries({
-            upColor: 'rgba(255, 144, 0, 1)',
-            downColor: 'rgba(0, 144, 255, 1)',
-            borderVisible: false,
-            wickVisible: true,
-            borderColor: '#000000',
-            wickColor: '#000000',
-            borderUpColor: 'rgba(255, 144, 0, 1)',
-            borderDownColor: 'rgba(0, 144, 255, 1)',
-            wickUpColor: 'rgba(255, 144, 0, 1)',
-            wickDownColor: 'rgba(0, 144, 255, 1)',
-        });
-        console.log('Candlestick series added to chart');
-
-        // Store the series in the chartInstance for future updates
-        chartInstance.candleSeries = candleSeries;
-    } else {
-        console.log('Using existing chart instance');
-    }
-    
-    
-    console.log('Updating chart with new data');
-    console.log('Chart instance:', chartInstance);
-    console.log('Candlestick series:', chartInstance.candleSeries);
-
-    if (!data.length) {
-        console.error('No valid data to render the chart.');
-        return chartInstance; // Prevent further execution if data is invalid
-    }
-
-    // Log each data point before setting it to the chart
-    data.forEach((d, index) => {
-        console.log(`Data point ${index}:`, d);
-        // Additional checks can be added here if needed
-    });
-
-    try {
-        chartInstance.candleSeries.setData(data);
-        console.log('Data set to the chart successfully');
-    } catch (error) {
-        console.error('Error setting data to the chart:', error);
-    }
-    
-    return chartInstance;
-}
-*/
 
 function renderChart(data, chartInstance, chartContainerId) {
     console.log("Executing renderChart function");
