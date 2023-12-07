@@ -13,7 +13,6 @@
             type="text/javascript"
             src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"
     ></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 
@@ -183,16 +182,34 @@
 
     </div>
     <div class="content">
-        <h2 class="section-header" id="stock-title">Title</h2>
-        <!--
-        <div id="tv_chart_container"></div>
-        -->
-        
-        <div id="tv_chart_container">
-            <div id="candlestickChart"></div>
-        </div>
+        <div class ="container">
+            <h2 class="section-header" id="stock-title">Title</h2>
+            <div id="loadingGraphic">
+                <img src="../static/img/loading.gif" alt="Loading...">
+            </div>
+            <div id="tv_chart_container">
+                <div id="chart-title" class="chart-title">Chart Title</div>
+                <div id="candlestickChart">
+                    <!-- Your chart will be rendered here -->
+                </div>
+            </div>
+            <div id="x-axis-label" class="axis-label x-axis-label">X-Axis Label</div>
+            <div id="y-axis-label" class="axis-label y-axis-label">Y-Axis Label</div>
 
-        <div id="switch"></div>
+            <div class="switcher">
+                <span>Select Data Frequency:</span>
+                <div id="interval-switcher-container">
+                    <div id="interval-switcher"></div>
+                </div>
+            </div>
+            
+            <div class="switcher">
+                <span>Select Trade Indicators:</span>
+                <div id="field-switcher-container">
+                    <div id="field-switcher"></div>
+                </div>
+            </div>                  
+        </div>
 
         <h2 class="section-header">Overview</h2>
         <div class="info-container">
@@ -312,6 +329,8 @@
         </div>
 
     </div>
+    <script type="text/javascript" src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="../static/js/script.js"></script>
 </body>
 </html>

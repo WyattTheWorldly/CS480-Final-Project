@@ -10,6 +10,7 @@ body{
     margin: 0;
     display: flex;
     flex-direction: row;
+    background-color: #FBFBFB;
 }
 
 #side-menu{
@@ -89,52 +90,86 @@ body{
     font-size: 12px;
 }
 
+.container {
+    position: relative; 
+    top: 0; 
+    width: 100%; 
+}
+
 /*
 Trying new code for switcher
  */
-.switcher {
+ .switcher {
     display: flex;
     align-items: center;
-    height: 30px;
+    gap: 8px; 
     margin-top: 8px;
     color: #2196F3;
 }
 
+/* Style for disabled switcher item */
+.disabled {
+    color: gray; /* Change the color to indicate it's disabled */
+    pointer-events: none; /* Prevent clicks on the disabled item */
+}
+
 .switcher-item {
     cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    padding: 6px 8px;
+    padding: 6px 12px; 
     font-size: 14px;
     color: #262b3e;
     background-color: transparent;
-    margin-right: 8px;
-    border: none;
+    border: 1px solid #2196F3; 
     border-radius: 4px;
     outline: none;
+    transition: background-color 0.3s; 
 }
 
-.switcher-item:hover {
-    background-color: #f2f3f5;
+.switcher-item:hover, .switcher-item:focus {
+    background-color: #f2f3f5; 
 }
 
-.switcher-active-item {
-    text-decoration: none;
-    cursor: default;
+.switcher-item:active, .switcher-active-item {
+    background-color: #e1eff9; 
     color: #262b3e;
+    border-color: #1976D2; 
 }
 
-.switcher-active-item,
-.switcher-active-item:hover {
-    background-color: #e1eff9;
-}
-
-#tv_chart_container{
+#tv_chart_container {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center; /* Center content vertically and horizontally */
     width: calc(100vw - 315px);
     height: 400px;
-    margin: 50px 50px 0 0;
+    margin: auto;
+    position: relative;
+}
+
+.chart-title {
+    /* Position chart title at the top and center */
+    align-self: center;
+    text-align: center; /* Center text within the title */
+}
+
+.axis-label {
+    /* Additional styling for axis labels */
+    text-align: center; /* Center text within the label */
+}
+
+.x-axis-label {
+    /* Position x-axis label to the right and vertically centered */
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    transform: rotate(-270deg); /* Rotate text vertically */
+}
+
+.y-axis-label {
+    /* Position y-axis label at the bottom right */
+    align-self: flex-end;
+    margin-right: 20px; /* Add margin for separation from x-axis label */
 }
 
 .content {
@@ -178,3 +213,20 @@ Trying new code for switcher
   margin-bottom: 20px;
 }
 
+#loadingGraphic {
+    position: absolute;
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust horizontally */
+    height: 400px; /* Match the container's height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*margin-top: 75px;*/
+}
+
+#loadingGraphic img {
+    height: 100%; /* Full height of the loading graphic */
+    width: auto; /* Maintain aspect ratio */
+    object-fit: contain;
+
+}
