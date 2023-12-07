@@ -84,7 +84,8 @@ function processDataForHistogram(selectedData) {
 // Function to display a histogram
 function displayHistogram(selectedData) {
 
-    console.log('displayHistogram');
+    console.log('Executing displayHistogram function');
+    console.log('Selected data:', selectedData)
     
     if (!selectedData.length) {
         console.error('No valid data to render the histogram.');
@@ -474,7 +475,7 @@ function handleIntervalSelectionChange(selectedInterval) {
         case 'High Price':
         case 'high_price':
         case 'Low Price':
-        case 'Low Price':
+        case 'low_price':
         case 'Close Price':
         case 'close_price':
             displayLineGraph(currentField, processDataForLineGraph(currentField, selectedData));
@@ -526,6 +527,9 @@ const combinations = {
     'all_Daily': {
         title: 'Daily Timeseries Data'
     },
+    'all_daily': {
+        title: 'Daily Timeseries Data'
+    },
     'all_Weekly Averages': {
         title: 'Weekly Averages'
     },
@@ -535,10 +539,31 @@ const combinations = {
     'all_Yearly Averages': {
         title: 'Yearly Averages'
     },
+    'All_5 min Increments': {
+        title: 'Intraday Timeseries Daily Data'
+    },
+    'All_Daily': {
+        title: 'Daily Timeseries Data'
+    },
+    'All_daily': {
+        title: 'Daily Timeseries Data'
+    },
+    'All_Weekly Averages': {
+        title: 'Weekly Averages'
+    },
+    'All_Monthly Averages': {
+        title: 'Monthly Averages'
+    },
+    'All_Yearly Averages': {
+        title: 'Yearly Averages'
+    },
     'open_price_5 min Increments': {
         title: 'Intraday Timeseries Daily for Open Price'
     },
-    'open_price_Daily Averages': {
+    'open_price_Daily': {
+        title: 'Daily Timeseries for Open Price'
+    },
+    'open_price_daily': {
         title: 'Daily Timeseries for Open Price'
     },
     'open_price_Weekly Averages': {
@@ -550,10 +575,31 @@ const combinations = {
     'open_price_Yearly Averages': {
         title: 'Yearly Averages for Open Price'
     },
+    'Open Price_5 min Increments': {
+        title: 'Intraday Timeseries Daily for Open Price'
+    },
+    'Open Price_Daily': {
+        title: 'Daily Timeseries for Open Price'
+    },
+    'Open Price_daily': {
+        title: 'Daily Timeseries for Open Price'
+    },
+    'Open Price_Weekly Averages': {
+        title: 'Weekly Averages for Open Price'
+    },
+    'Open Price_Monthly Averages': {
+        title: 'Monthly Averages for Open Price'
+    },
+    'Open Price_Yearly Averages': {
+        title: 'Yearly Averages for Open Price'
+    },
     'high_price_5 min Increments': {
         title: 'Intraday Timeseries Daily Data for High Price'
     },
-    'high_price_Daily Averages': {
+    'high_price_Daily': {
+        title: 'Daily Timeseries for High Price '
+    },
+    'high_price_daily': {
         title: 'Daily Timeseries for High Price '
     },
     'high_price_Weekly Averages': {
@@ -565,10 +611,31 @@ const combinations = {
     'high_price_Yearly Averages': {
         title: 'Yearly Averages for High Price'
     },
+    'High Price_5 min Increments': {
+        title: 'Intraday Timeseries Daily Data for High Price'
+    },
+    'High Price_Daily': {
+        title: 'Daily Timeseries for High Price '
+    },
+    'High Price_daily': {
+        title: 'Daily Timeseries for High Price '
+    },
+    'High Price_Weekly Averages': {
+        title: 'Weekly Averages for High Price'
+    },
+    'high_price_Monthly Averages': {
+        title: 'Monthly Averages for High Price'
+    },
+    'High Price_Yearly Averages': {
+        title: 'Yearly Averages for High Price'
+    },
     'low_price_5 min Increments': {
         title: 'Intraday Timeseries Daily Data for Low Price'
     },
-    'low_price_Daily Averages': {
+    'low_price_Daily': {
+        title: 'Daily Timeseries for Low Price'
+    },
+    'low_price_daily': {
         title: 'Daily Timeseries for Low Price'
     },
     'low_price_Weekly Averages': {
@@ -580,10 +647,31 @@ const combinations = {
     'low_price_Yearly Averages': {
         title: 'Yearly Averages for Low Price'
     },
+    'Low Price_5 min Increments': {
+        title: 'Intraday Timeseries Daily Data for Low Price'
+    },
+    'Low Price_Daily': {
+        title: 'Daily Timeseries for Low Price'
+    },
+    'Low Price_daily': {
+        title: 'Daily Timeseries for Low Price'
+    },
+    'Low Price_Weekly Averages': {
+        title: 'Weekly Averages for Low Price'
+    },
+    'Low Price_Monthly Averages': {
+        title: 'Monthly Averages for Low Price'
+    },
+    'Low Price_Yearly Averages': {
+        title: 'Yearly Averages for Low Price'
+    },
     'close_price_5 min Increments': {
         title: 'Intraday Timeseries Daily Data for Close Price'
     },
-    'close_price_Daily Averages': {
+    'close_price_Daily': {
+        title: 'Daily Timerseries for Close Price'
+    },
+    'close_price_daily': {
         title: 'Daily Timerseries for Close Price'
     },
     'close_price_Weekly Averages': {
@@ -595,10 +683,31 @@ const combinations = {
     'close_price_Yearly Averages': {
         title: 'Yearly Averages for Close Price'
     },
+    'Close Price_5 min Increments': {
+        title: 'Intraday Timeseries Daily Data for Close Price'
+    },
+    'Close Price_Daily': {
+        title: 'Daily Timerseries for Close Price'
+    },
+    'Close Price_daily': {
+        title: 'Daily Timerseries for Close Price'
+    },
+    'Close Price_Weekly Averages': {
+        title: 'Weekly Averages for Close Price'
+    },
+    'Close Price_Monthly Averages': {
+        title: 'Monthly Averages for Close Price'
+    },
+    'Close Price_Yearly Averages': {
+        title: 'Yearly Averages for Close Price'
+    },
     'volume_5 min Increments': {
         title: 'Intraday Timeseries Daily Data for Volume'
     },
-    'volume_Daily Averages': {
+    'volume_Daily': {
+        title: 'Daily Time Series for Volume'
+    },
+    'volume_daily': {
         title: 'Daily Time Series for Volume'
     },
     'volume_Weekly Averages': {
@@ -608,6 +717,24 @@ const combinations = {
         title: 'Monthly Averages for Volume'
     },
     'volume_Yearly Averages': {
+        title: 'Yearly Averages for Volume'
+    },
+    'Stock Volume_5 min Increments': {
+        title: 'Intraday Timeseries Daily Data for Volume'
+    },
+    'Stock Volume_Daily Averages': {
+        title: 'Daily Time Series for Volume'
+    },
+    'Stock volume_daily': {
+        title: 'Daily Time Series for Volume'
+    },
+    'Stock olume_Weekly Averages': {
+        title: 'Weekly Averages for Volume'
+    },
+    'Stock Volume_Monthly Averages': {
+        title: 'Monthly Averages for Volume'
+    },
+    'Stock Volume_Yearly Averages': {
         title: 'Yearly Averages for Volume'
     },
 };
@@ -769,7 +896,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Create interval and field switchers and append them to their containers
     intervalSwitcher = createIntervalSwitcher();
     fieldSwitcher = createFieldSwitcher();
-    
+
     // Get interval and field switcher containers
     const intervalSwitcherContainer = document.getElementById('interval-switcher');
     const fieldSwitcherContainer = document.getElementById('field-switcher');
