@@ -345,6 +345,7 @@ function updateChartWithData(chartInstance, selectedData, seriesType) {
     } else {
         console.error(`Unknown series type or series not found: ${seriesType}`);
     }
+    chartInstance.timeScale().fitContent();
 }
 
 function handleFieldSelectionChange(selectedField) {

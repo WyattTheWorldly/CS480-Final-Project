@@ -4,8 +4,8 @@
 }
 
 
-body{
-    font-family:-apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif;
     padding: 0;
     margin: 0;
     display: flex;
@@ -13,7 +13,7 @@ body{
     background-color: #FBFBFB;
 }
 
-#side-menu{
+#side-menu {
     position: fixed;
     display: flex;
     flex-direction: column;
@@ -37,7 +37,7 @@ body{
     color: #2a3f70;
 }
 
-.stock-button{
+.stock-button {
     display: flex;
     align-items: center;
 
@@ -52,11 +52,11 @@ body{
 
 }
 
-.stock-button:hover{
-    background: var(--primary-color);
+.stock-button:hover {
+    background: #f2f3f5;
 }
 
-.stock-icon{
+.stock-icon {
     height: 20px;
     width: 20px;
     border-radius: 20px;
@@ -70,21 +70,23 @@ body{
 }
 
 .line1,
-.line2{
+.line2 {
     display: flex;
     justify-content: left;
     padding-right: 10px;
 }
 
-.line1{
+.line1 {
     color: black;
     font-size: 14px;
 }
-.line1::after{
+
+.line1::after {
     content: '\2022';
     color: rgb(128, 128, 128);
     margin-left: 2px;
 }
+
 .line2 {
     color: rgb(128, 128, 128);
     font-size: 12px;
@@ -135,6 +137,11 @@ Trying new code for switcher
     border-color: #1976D2; 
 }
 
+.switcher-active-item,
+.switcher-active-item:hover {
+    background-color: #e1eff9;
+}
+
 #tv_chart_container {
     display: flex;
     flex-direction: column;
@@ -179,18 +186,18 @@ Trying new code for switcher
     margin-left: 250px;
 }
 
-.info-container{
+.info-container {
     width: calc(100vw - 300px);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
     gap: 25px;
 }
 
-#switch{
+#switch {
     margin-bottom: 50px;
 }
 
-.piece-of-info{
+.piece-of-info {
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -199,19 +206,21 @@ Trying new code for switcher
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.info-line2{
+.info-line2 {
     color: rgb(128, 128, 128);
     font-size: 14px;
 }
-.info-line1{
+
+.info-line1 {
     font-size: 18px;
 }
 
 .section-header {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
+
 
 #loadingGraphic {
     position: absolute;
@@ -228,5 +237,8 @@ Trying new code for switcher
     height: 100%; /* Full height of the loading graphic */
     width: auto; /* Maintain aspect ratio */
     object-fit: contain;
+}
 
+.stock-button.active {
+    background-color: #e1eff9;
 }
