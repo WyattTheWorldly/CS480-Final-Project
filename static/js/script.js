@@ -1,18 +1,3 @@
-/*
-const chartElement = document.getElementById('tv_chart_container');
-const chart = LightweightCharts.createChart(chartElement, {
-    timeScale: {
-        timeVisible: false,
-        secondsVisible: false,
-    },
-});
-let candleSeries = null
-
-let dayData = [];
-let weekData = [];
-let monthData = [];
-*/
-
 let candlestickChart; // Global variable to hold the first chart instance
 let currentSymbol = 'AAPL'; // Default symbol
 let currentField = 'open_price'; // Default field
@@ -23,7 +8,7 @@ let intervals = ['5 min Increments','Daily', 'Weekly Averages', 'Monthly Average
 // Create a simple switcher (assuming createSimpleSwitcher function exists)
 let switcherElement = createSimpleSwitcher(intervals, intervals[0], syncToInterval);
 
-// Update the data for the chart to the correct interval
+
 // Update the data for the chart to the correct interval
 async function syncToInterval(interval) {
     console.log(`Switching to interval: ${interval}`);
@@ -137,7 +122,6 @@ function createNewChartInstance(chartContainer) {
         wickUpColor: 'rgba(255, 144, 0, 1)', wickDownColor: 'rgba(0, 144, 255, 1)',
     });
     console.log('Candlestick series added to chart');
-    chartInstance.candleSeries = candleSeries;
     return chartInstance;
 }
 
@@ -156,18 +140,14 @@ function updateChartWithData(chartInstance, data) {
     } catch (error) {
         console.error('Error setting data to the chart:', error);
     }
+    chartInstance.timeScale().fitContent();
 }
 
 // This function should be called once for when stock button is clicked
 // to load data into the global arrays.
 function loadAllDataSeries(symbol){
     console.log("Executing loadAllDataSeries function");
-
     updateOverview(symbol);
-    // fetchData(symbol);//default is TIME_SERIES_DAILY
-    // fetchData(symbol, "TIME_SERIES_WEEKLY");
-    // fetchData(symbol, "TIME_SERIES_MONTHLY");
-    // Assuming these are your possible fields and time increments
     currentSymbol = symbol;
     syncToInterval(intervals[0]);
 }
@@ -291,9 +271,6 @@ function transformData(jsonData, timeSeriesKey) {
     return transformedData;
 }
 
-
-// this can be deleted, simply random data not needed
-
 function updateChartOld(data) {
 
     //updating the data for chart
@@ -308,10 +285,6 @@ function updateChartOld(data) {
     candleSeries.setData(data);
     chart.timeScale().fitContent();
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-});
-
 
 function createSimpleSwitcher(items, activeItem, activeItemChangedCallback) {
     let switcherElement = document.getElementById('switch');
@@ -345,26 +318,15 @@ function createSimpleSwitcher(items, activeItem, activeItemChangedCallback) {
     return switcherElement;
 }
 
-/*
-let intervals = ['1D', '1W', '1M'];
+const buttons = document.querySelectorAll('.stock-button');
 
-let switcherElement = createSimpleSwitcher(intervals, intervals[0], syncToInterval);
+// Add click event listeners to each button
+buttons.forEach(button => {
+  button.addEventListener('click', () => {
+    // Remove 'active' class from all buttons
+    buttons.forEach(btn => btn.classList.remove('active'));
 
-//Set the data for chart to the correct interval
-function syncToInterval(interval) {
-    switch (interval){
-        case '1D':
-            updateChart(dayData);
-            break;
-        case '1W':
-            updateChart(weekData);
-            break;
-        case '1M':
-            updateChart(monthData);
-            break;
-        default:
-            console.log('hit def');
-            break;
-    }
-}
-*/
+    // Add 'active' class only to the clicked button
+    button.classList.add('active');
+  });
+});
